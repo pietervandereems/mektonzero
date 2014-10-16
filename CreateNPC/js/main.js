@@ -5,25 +5,38 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
     var db = new Pouchdb('mekton'),
         changed = false,
         elements = {},
+        elmDefaults = {},
         updateSelection,
         showStats;
 
     elements.charType = document.getElementById('chartype');
-    elements.stats = document.querySelector('#result > div');
+    elements.stats = document.getElementById('stats');
+    elements.edge = document.getElementById('edge');
+    elmDefaults.stats = elements.stats.innerHTML;
 
     showStats = function (err, doc) {
-        var stats;
+        var stats,
+            edges;
         if (err) {
             console.error('Error doc retrieval', err);
             return;
         }
-        try {
-            stats = JSON.stringify(doc.role_stats[Math.floor(Math.random() * 10)]);
-        } catch (e) {
-            console.error("Error, result is not a json object", e);
-            return;
+        elements.edge.innerHTML = '';
+        edges = Object.keys(doc.edge);
+        edges.forEach(function (edge) {
+            elements.edge.innerHTML += '<p>' + edge + ': ' + doc.edge[edge] + '</p>';
+        });
+        if (Array.isArray(doc.role_stats) && doc.role_stats.length > 0) {
+            elements.stats.innerHTML = elmDefaults.stats;
+            stats = Object.keys(doc.role_stats[0]);
+            stats.forEach(function (stat) {
+                if (stat === 'nr') {
+                    return;
+                }
+                var row = elements.stats.insertRow();
+                row.innerHTML = '<td>' + stat + '</td><td>' + doc.role_stats[Math.floor(Math.random() * 10)][stat] + '</td>';
+            });
         }
-        elements.stats.innerHTML = stats;
     };
 
     elements.charType.addEventListener('change', function (event) {
@@ -53,7 +66,7 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
         }).on('complete', function (info) {
             console.log('complete', info);
             updateSelection();
-        }).on('uptodate', function (info) {
+        }).on('uptodate', function () {
 //            console.log('uptodate', info);
             if (changed) {
                 updateSelection();
