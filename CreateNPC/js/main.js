@@ -46,7 +46,7 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
             }
         });
     };
-    Pouchdb.replicate('https://picouch.eemco.nl/mekton', 'mekton', {live: true, filter: 'mekton/typedDocs'})
+    Pouchdb.replicate('https://zero.mekton.nl/db/mekton', 'mekton', {live: true, filter: 'mekton/typedDocs'})
         .on('change', function (info) {
             console.log('change', info);
             changed = true;
