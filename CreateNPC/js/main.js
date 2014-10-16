@@ -3,36 +3,64 @@
 requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
     'use strict';
     var db = new Pouchdb('mekton'),
-//        replFilter,
-        replication,
-        show;
+        changed = false,
+        elements = {},
+        updateSelection,
+        showStats;
 
-//    replFilter = function (doc) {
-//        return !!(doc.type);
-//    };
-    show = function () {
-        db.get('826da529b3a1375247121d380800018d', function (err, doc) {
+    elements.charType = document.getElementById('chartype');
+    elements.stats = document.querySelector('#result > div');
+
+    showStats = function (err, doc) {
+        var stats;
+        if (err) {
+            console.error('Error doc retrieval', err);
+            return;
+        }
+        try {
+            stats = JSON.stringify(doc.role_stats[Math.floor(Math.random() * 10)]);
+        } catch (e) {
+            console.error("Error, result is not a json object", e);
+            return;
+        }
+        elements.stats.innerHTML = stats;
+    };
+
+    elements.charType.addEventListener('change', function (event) {
+        db.get(event.target.value, showStats);
+    });
+
+    updateSelection = function () {
+        db.query('local/typesWithName', {reduce: false, key: 'archetype'}, function (err, list) {
+            var options = '<option>Archetype...</option>';
             if (err) {
-                console.log('Error getting doc', err);
+                console.error('Error retrieving typesWithName', err);
                 return;
             }
-            document.getElementById('doc').innerHTML = JSON.stringify(doc);
+            elements.charType.innerHTML = '';
+            if (Array.isArray(list.rows)) {
+                list.rows.forEach(function (archetype) {
+                    options += '<option value="' + archetype.id  + '">' + archetype.value.name + '</option>';
+                });
+                elements.charType.innerHTML = options;
+            }
         });
     };
-    Pouchdb.replicate('http://picuntu:5984/mekton', 'mekton', {live: true, filter: 'mekton/typedDocs'})
+    Pouchdb.replicate('https://picouch.eemco.nl/mekton', 'mekton', {live: true, filter: 'mekton/typedDocs'})
         .on('change', function (info) {
             console.log('change', info);
-            // handle change
+            changed = true;
         }).on('complete', function (info) {
             console.log('complete', info);
-            show();
-            // handle complete
+            updateSelection();
         }).on('uptodate', function (info) {
-            console.log('uptodate', info);
-            // handle up-to-date
+//            console.log('uptodate', info);
+            if (changed) {
+                updateSelection();
+                changed = false;
+            }
         }).on('error', function (err) {
-            console.log('error', err);
-            // handle error
+            console.error('error', err);
         });
-    show();
+    updateSelection();
 });
