@@ -1,0 +1,82 @@
+{
+    "type": "skills",
+    "Int": [
+        "Awareness",
+        "Expert",
+        "Survival",
+        "Gamble",
+        "Teaching"
+    ],
+    "Cool": [
+        "Persuasion",
+        "Intimidate",
+        "Resistance"
+    ],
+    "Ref": [
+        "Mecha Fighting",
+        "Mecha Gunnery",
+        "Mecha Melee",
+        "Mecha Missile",
+        "Mecha Piloting",
+        "Stealth",
+        "Automatic Weapons",
+        "Blade",
+        "Dodge & Escape",
+        "Handgun",
+        "Hand to Hand",
+        "Rifle",
+        "Driving",
+        "Aircraft Pilot",
+        "Athletics"
+    ],
+    "Dex": [
+    ],
+    "Att": [
+        "Wardrobe & Style",
+        "Personal Grooming"
+    ],
+    "Emp": [
+        "Social",
+        "Human Perception",
+        "Leadership",
+        "Seduction"
+    ],
+    "Pre": [
+    ],
+    "Tech": [
+        "Medical",
+        "First Aid",
+        "Pick Lock",
+        "Pick Pocket"
+    ],
+    "Luck": [
+    ],
+    "Move": [
+    ],
+    "Body": [
+    ],
+    "Categories": {
+        "Mecha Combat": {
+            "Mecha Fighting": "Ref",
+            "Mecha Gunnery": "Ref",
+            "Mecha Melee": "Ref",
+            "Mecha Missile": "Ref",
+            "Mecha Piloting": "Ref"
+        },
+        "Personal Combat": {
+            "Automatic Weapons": "Ref",
+            "Blade": "Ref",
+            "Dodge & Escape": "Ref",
+            "Handgun": "Ref",
+            "Hand to Hand": "Ref",
+            "Rifle": "Ref"
+        },
+        "Personal Weapons": {
+            "Automatic Weapons": "Ref",
+            "Blade": "Ref",
+            "Handgun": "Ref",
+            "Rifle": "Ref"
+        },
+        "Everyman Skills": {}
+    }
+}
