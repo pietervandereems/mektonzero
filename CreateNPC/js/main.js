@@ -6,10 +6,13 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
         changed = false,
         elements = {},
         elmDefaults = {},
+        character = {},
         updateSelection,
         generateStats,
         generateSkills,
         generateEdge,
+        display,
+        displaySkills,
         pickSkillFromCategory;
 
     // **
@@ -36,19 +39,18 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
     // **
     generateSkills = function (doc) {
         var addToSkillList,
-            findStatOfSkill,
-            skillList = {}; //Internal skilllist. Used to gather skills linked to their stat. to print per stat
+            findStatOfSkill;
         if (!Array.isArray(doc.starting_skills)) {
             return;
         }
         // Add the skill to the internal skilllist.
         addToSkillList = function (skill, value, stat, unique) {
-            skillList[stat] = skillList[stat] || {};
-            if (unique && skillList[stat][skill]) { // Skill must be unique
+            character.skills[stat] = character.skills[stat] || {};
+            if (unique && character.skills[stat][skill]) { // Skill must be unique
                 return false;
             }
-            skillList[stat][skill] = skillList[stat][skill] || 0;
-            skillList[stat][skill] += value;
+            character.skills[stat][skill] = character.skills[stat][skill] || 0;
+            character.skills[stat][skill] += value;
             return true;
         };
         // Determine the stat the skill belongs to
@@ -65,15 +67,13 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
             }
             return "Unkown";
         };
-        // Clear skill list.
-        elements.skills.innerHTML = elmDefaults.skills;
         // Gather all available skills, so we know where to place everything and can choose a skill from a category if needed.
         db.query('local/typesWithName', {reduce: false, key: 'skills', include_docs: true}, function (err, list) {
-            var skillDoc,
-                printStats;
+            var skillDoc;
             if (err || !Array.isArray(list.rows) || list.rows.length === 0) {
                 return;
             }
+            character.skills = {};
             skillDoc = list.rows[0].doc;
             // Loop through characters starting skills.
             doc.starting_skills.forEach(function (skillObj) {
@@ -91,43 +91,74 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
                 }
             });
             // All character skill proccessed. Now list them in the skills table
-            printStats = Object.keys(skillList);
-            printStats.forEach(function (printStat) {
-                var row = elements.skills.insertRow(),
-                    rowInner = '',
-                    printSkills;
-                rowInner += '<td>' + printStat + '</td><td>';
-                printSkills = Object.keys(skillList[printStat]);
-                printSkills.forEach(function (printSkill) {
-                    rowInner += printSkill + ": " + skillList[printStat][printSkill] + '<br/>';
-                });
-                row.innerHTML = rowInner + '</td>';
-            });
+            displaySkills();
         });
     };
     // Get the archetype edge and display it.
     generateEdge = function (doc) {
         var edges;
-        elements.edge.innerHTML = '';
+        character.edge = {};
         edges = Object.keys(doc.edge);
         edges.forEach(function (edge) {
-            elements.edge.innerHTML += '<p>' + edge + ': ' + doc.edge[edge] + '</p>';
+            character.edge[edge] = doc.edge[edge];
         });
     };
     // Randomly determine character stats based on archetype.
     generateStats = function (doc) {
         var stats;
+        character.stats = {};
         if (Array.isArray(doc.role_stats) && doc.role_stats.length > 0) {
-            elements.stats.innerHTML = elmDefaults.stats;
             stats = Object.keys(doc.role_stats[0]);
             stats.forEach(function (stat) {
                 if (stat === 'nr') {
                     return;
                 }
-                var row = elements.stats.insertRow();
-                row.innerHTML = '<td>' + stat + '</td><td>' + doc.role_stats[Math.floor(Math.random() * 10)][stat] + '</td>';
+                character.stats[stat] = doc.role_stats[Math.floor(Math.random() * 10)][stat];
             });
         }
+    };
+
+    // **
+    // Display Character
+    // **
+
+    // Display all characteristics that are available synchronously
+    display = function () {
+        var edges,
+            stats;
+
+        // Edges
+        edges = Object.keys(character.edge);
+        elements.edge.innerHTML = '';
+        edges.forEach(function (edge) {
+            elements.edge.innerHTML += '<p>' + edge + ': ' + character.edge[edge] + '</p>';
+        });
+
+        // Stats
+        stats = Object.keys(character.stats);
+        elements.stats.innerHTML = elmDefaults.stats;
+        stats.forEach(function (stat) {
+            var row = elements.stats.insertRow();
+            row.innerHTML = '<td>' + stat + '</td><td>' + character.stats[stat] + '</td>';
+        });
+
+    };
+    // Skilllist needs to be retrieved asynchronously so a seperate function to display those.
+    displaySkills = function () {
+        var stats;
+        stats = Object.keys(character.skills);
+        elements.skills.innerHTML = elmDefaults.skills;
+        stats.forEach(function (stat) {
+            var row = elements.skills.insertRow(),
+                rowInner = '',
+                skills;
+            rowInner += '<td>' + stat + '</td><td>';
+            skills = Object.keys(character.skills[stat]);
+            skills.forEach(function (skill) {
+                rowInner += skill + ": " + character.skills[stat][skill] + '<br/>';
+            });
+            row.innerHTML = rowInner + '</td>';
+        });
     };
 
     // **
@@ -142,6 +173,7 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
             generateEdge(doc);
             generateStats(doc);
             generateSkills(doc);
+            display();
         });
     });
 
