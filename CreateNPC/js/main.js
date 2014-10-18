@@ -55,6 +55,9 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
         findStatOfSkill = function (skillDoc, skill) {
             var statList = Object.keys(skillDoc.Stats),
                 i;
+            if (skill.substr(0, 7) === 'Expert:') { // Group all expert subskill under the expert skill
+                skill = 'Expert';
+            }
             for (i = statList.length - 1; i >= 0; i -= 1) {
                 if (skillDoc.Stats[statList[i]].indexOf(skill) > -1) {
                     return statList[i];
