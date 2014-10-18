@@ -3,17 +3,20 @@
 requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
     'use strict';
     var db = new Pouchdb('mekton'),
+        charDb = new Pouchdb('localChars'),
         changed = false,
         elements = {},
         elmDefaults = {},
         character = {},
         updateSelection,
+        updateSavedChar,
         generateStats,
         generateSkills,
         generateEdge,
         display,
         displaySkills,
-        pickSkillFromCategory;
+        pickSkillFromCategory,
+        addView;
 
     // **
     // Shortcuts to interface elements
@@ -22,6 +25,9 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
     elements.stats = document.getElementById('stats');
     elements.edge = document.getElementById('edge');
     elements.skills = document.getElementById('skills');
+    elements.name = document.getElementById('name');
+    elements.saved = document.getElementById('saved');
+    elements.save = document.getElementById('save');
     elmDefaults.stats = elements.stats.innerHTML;
     elmDefaults.skills = elements.skills.innerHTML;
 
@@ -177,6 +183,13 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
         });
     });
 
+    elements.save.addEventListener('click', function (event) {
+        event.preventDefault();
+        character.name = elements.name.value;
+        charDb.post(character, function (err, result) {
+            console.log('chardb put', err, result);
+        });
+    });
 
     // **
     // Update
@@ -199,10 +212,32 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
         });
     };
 
+    // Fill saved characters selector
+    updateSavedChar = function () {
+        charDb.query('local/names', function (err, list) {
+            var options = '';
+            if (err) {
+                if (err.status && err.message && err.status === 404 && err.message === 'missing') {
+                    addView('local', updateSavedChar);
+                } else {
+                    console.log('error', err);
+                }
+                return;
+            }
+            elements.saved.innerHTML = '';
+            if (Array.isArray(list.rows) && list.rows.length > 0) {
+                list.rows.forEach(function (name) {
+                    options += '<option value="' + name.id  + '">' + name.key + '</option>';
+                });
+                elements.saved.innerHTML = options;
+            }
+        });
+    };
+
     // **
-    // Data
+    // Database
     // **
-    // Update local database
+    // Update local mekton database, and listen to replicate events
     Pouchdb.replicate('https://zero.mekton.nl/db/mekton', 'mekton', {live: true, filter: 'mekton/typedDocs'})
         .on('change', function (info) {
             console.log('change', info);
@@ -219,5 +254,47 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
         }).on('error', function (err) {
             console.error('error', err);
         });
+    // Listen to changes to local characters database
+    charDb.changes({live: true})
+        .on('complete', function (info) {
+            console.log('charDb complete', info);
+            updateSavedChar();
+        })
+        .on('change', function (info) {
+            console.log('charDb change', info);
+        })
+        .on('error', function (info) {
+            console.error('charDb error', info);
+        })
+        .on('create', function (info) {
+            console.log('charDb create', info);
+        })
+        .on('update', function (info) {
+            console.log('charDb update', info);
+        })
+        .on('delete', function (info) {
+            console.log('charDb delete', info);
+        });
+    addView = function (view, cb) {
+        switch (view) {
+        case 'local':
+            charDb.put({
+                '_id': '_design/local',
+                'views': {
+                    'names': {
+                        'map': 'function(doc) { if (doc.name) {\n    emit(doc.name, 1);\n    }\n}'
+                    }
+                }
+            }, function (err, result) {
+                if (err) {
+                    console.log('Error saving view', err);
+                    return;
+                }
+                console.log('saved', result);
+                cb();
+            });
+            break;
+        }
+    };
     updateSelection();
 });
