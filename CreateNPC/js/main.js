@@ -36,10 +36,12 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
     // **
     generateSkills = function (doc) {
         var addToSkillList,
-            skillList = {};
+            findStatOfSkill,
+            skillList = {}; //Internal skilllist. Used to gather skills linked to their stat. to print per stat
         if (!Array.isArray(doc.starting_skills)) {
             return;
         }
+        // Add the skill to the internal skilllist.
         addToSkillList = function (skill, value, stat, unique) {
             skillList[stat] = skillList[stat] || {};
             if (unique && skillList[stat][skill]) { // Skill must be unique
@@ -49,7 +51,20 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
             skillList[stat][skill] += value;
             return true;
         };
+        // Determine the stat the skill belongs to
+        findStatOfSkill = function (skillDoc, skill) {
+            var statList = Object.keys(skillDoc.Stats),
+                i;
+            for (i = statList.length - 1; i >= 0; i -= 1) {
+                if (skillDoc.Stats[statList[i]].indexOf(skill) > -1) {
+                    return statList[i];
+                }
+            }
+            return "Unkown";
+        };
+        // Clear skill list.
         elements.skills.innerHTML = elmDefaults.skills;
+        // Gather all available skills, so we know where to place everything and can choose a skill from a category if needed.
         db.query('local/typesWithName', {reduce: false, key: 'skills', include_docs: true}, function (err, list) {
             var skillDoc,
                 printStats;
@@ -57,6 +72,7 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
                 return;
             }
             skillDoc = list.rows[0].doc;
+            // Loop through characters starting skills.
             doc.starting_skills.forEach(function (skillObj) {
                 var skill = Object.keys(skillObj)[0],
                     level = skillObj[skill],
@@ -67,8 +83,11 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
                         randSkill = pickSkillFromCategory(skillDoc.Categories[skill]);
                         skillAdded = addToSkillList(randSkill, level, skillDoc.Categories[skill][randSkill], true);
                     } while (!skillAdded);
+                } else { // Skill is a specfic skill
+                    addToSkillList(skill, level, findStatOfSkill(skillDoc, skill));
                 }
             });
+            // All character skill proccessed. Now list them in the skills table
             printStats = Object.keys(skillList);
             printStats.forEach(function (printStat) {
                 var row = elements.skills.insertRow(),
@@ -83,6 +102,7 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
             });
         });
     };
+    // Get the archetype edge and display it.
     generateEdge = function (doc) {
         var edges;
         elements.edge.innerHTML = '';
@@ -91,6 +111,7 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
             elements.edge.innerHTML += '<p>' + edge + ': ' + doc.edge[edge] + '</p>';
         });
     };
+    // Randomly determine character stats based on archetype.
     generateStats = function (doc) {
         var stats;
         if (Array.isArray(doc.role_stats) && doc.role_stats.length > 0) {
