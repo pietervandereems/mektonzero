@@ -1,60 +1,62 @@
 {
     "type": "skills",
-    "Int": [
-        "Awareness",
-        "Expert",
-        "Survival",
-        "Gamble",
-        "Teaching"
-    ],
-    "Cool": [
-        "Persuasion",
-        "Intimidate",
-        "Resistance"
-    ],
-    "Ref": [
-        "Mecha Fighting",
-        "Mecha Gunnery",
-        "Mecha Melee",
-        "Mecha Missile",
-        "Mecha Piloting",
-        "Stealth",
-        "Automatic Weapons",
-        "Blade",
-        "Dodge & Escape",
-        "Handgun",
-        "Hand to Hand",
-        "Rifle",
-        "Driving",
-        "Aircraft Pilot",
-        "Athletics"
-    ],
-    "Dex": [
-    ],
-    "Att": [
-        "Wardrobe & Style",
-        "Personal Grooming"
-    ],
-    "Emp": [
-        "Social",
-        "Human Perception",
-        "Leadership",
-        "Seduction"
-    ],
-    "Pre": [
-    ],
-    "Tech": [
-        "Medical",
-        "First Aid",
-        "Pick Lock",
-        "Pick Pocket"
-    ],
-    "Luck": [
-    ],
-    "Move": [
-    ],
-    "Body": [
-    ],
+    "Stats" : {
+        "Int": [
+            "Awareness",
+            "Expert",
+            "Survival",
+            "Gamble",
+            "Teaching"
+        ],
+        "Cool": [
+            "Persuasion",
+            "Intimidate",
+            "Resistance"
+        ],
+        "Ref": [
+            "Mecha Fighting",
+            "Mecha Gunnery",
+            "Mecha Melee",
+            "Mecha Missile",
+            "Mecha Piloting",
+            "Stealth",
+            "Automatic Weapons",
+            "Blade",
+            "Dodge & Escape",
+            "Handgun",
+            "Hand to Hand",
+            "Rifle",
+            "Driving",
+            "Aircraft Pilot",
+            "Athletics"
+        ],
+        "Dex": [
+        ],
+        "Att": [
+            "Wardrobe & Style",
+            "Personal Grooming"
+        ],
+        "Emp": [
+            "Social",
+            "Human Perception",
+            "Leadership",
+            "Seduction"
+        ],
+        "Pre": [
+        ],
+        "Tech": [
+            "Medical",
+            "First Aid",
+            "Pick Lock",
+            "Pick Pocket"
+        ],
+        "Luck": [
+        ],
+        "Move": [
+        ],
+        "Body": [
+        ]
+    },
     "Categories": {
         "Mecha Combat": {
             "Mecha Fighting": "Ref",
