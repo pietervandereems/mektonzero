@@ -6,6 +6,7 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
         charDb = new Pouchdb('localChars'),
         changed = false,
         initialPhase = true,
+        localCharacter = {},
         elements = {},
         elmDefaults = {},
         character = {},
@@ -171,10 +172,11 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
     // **
     // Event Listeners, for user interaction
     // **
+    // A new archetype is selected
     elements.charType.addEventListener('change', function (event) {
         db.get(event.target.value, function (err, doc) {
             if (err) {
-                console.error('Error doc retrieval', err);
+                console.error('Error archetype doc retrieval', err);
                 return;
             }
             generateEdge(doc);
@@ -184,11 +186,30 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
         });
     });
 
+    // The 'save this archetype' is clicked
     elements.save.addEventListener('click', function (event) {
         event.preventDefault();
         character.name = elements.name.value;
         charDb.post(character, function (err, result) {
             console.log('chardb put', err, result);
+        });
+    });
+
+    // A saved character is selected
+    elements.saved.addEventListener('change', function (event) {
+        charDb.get(event.target.value, function (err, doc) {
+            if (err) {
+                console.error('Error character doc retrieval', err);
+                return;
+            }
+            localCharacter = {
+                id: doc._id,
+                name: doc.name
+            };
+            elements.name.value = doc.name;
+            character = doc;
+            display();
+            displaySkills();
         });
     });
 
@@ -230,7 +251,7 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
                 list.rows.forEach(function (name) {
                     options += '<option value="' + name.id  + '">' + name.key + '</option>';
                 });
-                elements.saved.innerHTML = options;
+                elements.saved.innerHTML = '<option value="">Names...</option>' + options;
             }
         });
     };
