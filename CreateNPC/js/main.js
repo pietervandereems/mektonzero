@@ -5,6 +5,7 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
     var db = new Pouchdb('mekton'),
         charDb = new Pouchdb('localChars'),
         changed = false,
+        initialPhase = true,
         elements = {},
         elmDefaults = {},
         character = {},
@@ -220,7 +221,7 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
                 if (err.status && err.message && err.status === 404 && err.message === 'missing') {
                     addView('local', updateSavedChar);
                 } else {
-                    console.log('error', err);
+                    console.error('Error getting view local/names', err);
                 }
                 return;
             }
@@ -237,44 +238,6 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
     // **
     // Database
     // **
-    // Update local mekton database, and listen to replicate events
-    Pouchdb.replicate('https://zero.mekton.nl/db/mekton', 'mekton', {live: true, filter: 'mekton/typedDocs'})
-        .on('change', function (info) {
-            console.log('change', info);
-            changed = true;
-        }).on('complete', function (info) {
-            console.log('complete', info);
-            updateSelection();
-        }).on('uptodate', function () {
-//            console.log('uptodate', info);
-            if (changed) {
-                updateSelection();
-                changed = false;
-            }
-        }).on('error', function (err) {
-            console.error('error', err);
-        });
-    // Listen to changes to local characters database
-    charDb.changes({live: true})
-        .on('complete', function (info) {
-            console.log('charDb complete', info);
-            updateSavedChar();
-        })
-        .on('change', function (info) {
-            console.log('charDb change', info);
-        })
-        .on('error', function (info) {
-            console.error('charDb error', info);
-        })
-        .on('create', function (info) {
-            console.log('charDb create', info);
-        })
-        .on('update', function (info) {
-            console.log('charDb update', info);
-        })
-        .on('delete', function (info) {
-            console.log('charDb delete', info);
-        });
     addView = function (view, cb) {
         switch (view) {
         case 'local':
@@ -285,16 +248,51 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
                         'map': 'function(doc) { if (doc.name) {\n    emit(doc.name, 1);\n    }\n}'
                     }
                 }
-            }, function (err, result) {
+            }, function (err) {
                 if (err) {
-                    console.log('Error saving view', err);
+                    console.error('Error saving view', err);
                     return;
                 }
-                console.log('saved', result);
                 cb();
             });
             break;
         }
     };
+    // Get the last sequence nr and start listening for new changes.
+    charDb.info(function (err, info) {
+        if (err) {
+            console.error('Error getting localChars database info', err);
+            info = {update_seq: 0};
+        }
+        // Listen to changes to local characters database
+        // note: info seems to not give us the last sequence nr.
+        charDb.changes({continuous: true, since: info.update_seq})
+            .on('change', function () {
+                if (!initialPhase) {    // we are only interested in changes after the database has been 'read' completely. Possibly a pouchdb problem?
+                    updateSavedChar();
+                }
+            })
+            .on('error', function (err) {
+                console.error('charDb error', err);
+            })
+            .on('uptodate', function () {
+                initialPhase = false;
+                updateSavedChar();
+            });
+    });
+    // Update local mekton database, and listen to replicate events
+    Pouchdb.replicate('https://zero.mekton.nl/db/mekton', 'mekton', {live: true, filter: 'mekton/typedDocs'})
+        .on('change', function () {
+            changed = true;
+        }).on('complete', function () {
+            updateSelection();
+        }).on('uptodate', function () {
+            if (changed) {
+                updateSelection();
+                changed = false;
+            }
+        }).on('error', function (err) {
+            console.error('error', err);
+        });
     updateSelection();
 });
