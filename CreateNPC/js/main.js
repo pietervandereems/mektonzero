@@ -190,6 +190,7 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
         event.preventDefault();
         if (localCharacter.name && localCharacter.id && localCharacter.name === elements.name.value) {
             if (window.confirm('Overwrite existing character?')) {
+                character.archetype = elements.charType.value;
                 charDb.put(character, character._id, character._rev, function (err) {
                     if (err) {
                         console.error('Error overwriting character', err);
@@ -200,6 +201,7 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
             }
         } else {
             character.name = elements.name.value;
+            character.archetype = elements.charType.value;
             charDb.post(character, function (err, result) {
                 console.log('chardb put', err, result);
             });
@@ -209,16 +211,31 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
     // A saved character is selected
     elements.saved.addEventListener('change', function (event) {
         charDb.get(event.target.value, function (err, doc) {
+            var opts,
+                index;
             if (err) {
                 console.error('Error character doc retrieval', err);
                 return;
             }
             localCharacter = {
                 id: doc._id,
-                name: doc.name
+                name: doc.name,
+                archetype: doc.archetype
             };
+            // If possible, set archetype selector to saved archetype
+            if (localCharacter.archetype) {
+                opts = elements.charType.options;
+                for (index = opts.length - 1; index >= 0; index -= 1) {
+                    if (opts[index].value === localCharacter.archetype) {
+                        elements.charType.selectedIndex = index;
+                        return;
+                    }
+                }
+            }
+            // set values
             elements.name.value = doc.name;
             character = doc;
+            // display character
             display();
             displaySkills();
         });
@@ -238,7 +255,11 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
             elements.charType.innerHTML = '';
             if (Array.isArray(list.rows)) {
                 list.rows.forEach(function (archetype) {
-                    options += '<option value="' + archetype.id  + '">' + archetype.value.name + '</option>';
+                    var selected = '';
+                    if (localCharacter.archetype === archetype) {
+                        selected = 'selected';
+                    }
+                    options += '<option value="' + archetype.id  + '" ' + selected + '>' + archetype.value.name + '</option>';
                 });
                 elements.charType.innerHTML = options;
             }
@@ -260,7 +281,11 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
             elements.saved.innerHTML = '';
             if (Array.isArray(list.rows) && list.rows.length > 0) {
                 list.rows.forEach(function (name) {
-                    options += '<option value="' + name.id  + '">' + name.key + '</option>';
+                    var selected = '';
+                    if (localCharacter.id && localCharacter.id === name.id) {
+                        selected = 'selected';
+                    }
+                    options += '<option value="' + name.id  + '" ' + selected + '>' + name.key + '</option>';
                 });
                 elements.saved.innerHTML = '<option value="">Names...</option>' + options;
             }
