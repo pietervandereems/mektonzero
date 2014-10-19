@@ -188,7 +188,7 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
     elements.save.addEventListener('click', function (event) {
         event.preventDefault();
         if (localCharacter.name && localCharacter.id && localCharacter.name === elements.name.value) {
-            if (window.confirm('Overwrite existing character?')) {
+            if (window.confirm('Overwrite existing character? (name is the same)')) {
                 character.archetype = elements.charType.value;
                 charDb.put(character, character._id, character._rev, function (err) {
                     if (err) {
@@ -202,7 +202,9 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
             character.name = elements.name.value;
             character.archetype = elements.charType.value;
             charDb.post(character, function (err, result) {
-                console.log('chardb put', err, result);
+                if (err) {
+                    console.error('Error saving new character', err);
+                }
             });
         }
     });
@@ -319,6 +321,7 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
             console.error('Error getting localChars database info', err);
             info = {update_seq: 0};
         }
+        updateSavedChar();
         // Listen to changes to local characters database
         // note: info seems to not give us the last sequence nr.
         charDb.changes({continuous: true, since: info.update_seq})
@@ -328,7 +331,7 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
                 }
             })
             .on('error', function (err) {
-                console.error('charDb error', err);
+                console.error('Error with charDb change', err);
             })
             .on('uptodate', function () {
                 initialPhase = false;
