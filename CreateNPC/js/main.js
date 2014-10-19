@@ -133,7 +133,6 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
     display = function () {
         var edges,
             stats;
-
         // Edges
         edges = Object.keys(character.edge);
         elements.edge.innerHTML = '';
@@ -220,7 +219,7 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
             localCharacter = {
                 id: doc._id,
                 name: doc.name,
-                archetype: doc.archetype
+                archetype: doc.archetype || ''
             };
             // If possible, set archetype selector to saved archetype
             if (localCharacter.archetype) {
@@ -228,7 +227,6 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
                 for (index = opts.length - 1; index >= 0; index -= 1) {
                     if (opts[index].value === localCharacter.archetype) {
                         elements.charType.selectedIndex = index;
-                        return;
                     }
                 }
             }
