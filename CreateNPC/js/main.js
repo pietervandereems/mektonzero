@@ -1,10 +1,9 @@
-/*jslint browser:true*/
+/*jslint browser:true, nomen:true*/
 /*global requirejs*/
 requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
     'use strict';
     var db = new Pouchdb('mekton'),
         charDb = new Pouchdb('localChars'),
-        changed = false,
         initialPhase = true,
         localCharacter = {},
         elements = {},
@@ -189,10 +188,22 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
     // The 'save this archetype' is clicked
     elements.save.addEventListener('click', function (event) {
         event.preventDefault();
-        character.name = elements.name.value;
-        charDb.post(character, function (err, result) {
-            console.log('chardb put', err, result);
-        });
+        if (localCharacter.name && localCharacter.id && localCharacter.name === elements.name.value) {
+            if (window.confirm('Overwrite existing character?')) {
+                charDb.put(character, character._id, character._rev, function (err) {
+                    if (err) {
+                        console.error('Error overwriting character', err);
+                        return;
+                    }
+                    return;
+                });
+            }
+        } else {
+            character.name = elements.name.value;
+            charDb.post(character, function (err, result) {
+                console.log('chardb put', err, result);
+            });
+        }
     });
 
     // A saved character is selected
@@ -303,17 +314,12 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
     });
     // Update local mekton database, and listen to replicate events
     Pouchdb.replicate('https://zero.mekton.nl/db/mekton', 'mekton', {live: true, filter: 'mekton/typedDocs'})
-        .on('change', function () {
-            changed = true;
-        }).on('complete', function () {
+        .on('uptodate', function () {
             updateSelection();
-        }).on('uptodate', function () {
-            if (changed) {
-                updateSelection();
-                changed = false;
-            }
-        }).on('error', function (err) {
+        })
+        .on('error', function (err) {
             console.error('error', err);
         });
-    updateSelection();
+    // Clear fields
+    elements.name.value = '';
 });
