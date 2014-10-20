@@ -14,8 +14,10 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
         generateStats,
         generateSkills,
         generateEdge,
+        generateTraits,
         display,
         displaySkills,
+        displayTraits,
         pickSkillFromCategory,
         addView;
 
@@ -29,8 +31,10 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
     elements.name = document.getElementById('name');
     elements.saved = document.getElementById('saved');
     elements.save = document.getElementById('save');
+    elements.traits = document.getElementById('traits');
     elmDefaults.stats = elements.stats.innerHTML;
     elmDefaults.skills = elements.skills.innerHTML;
+    elmDefaults.traits = elements.traits.innerHTML;
 
     // **
     // Helper functions
@@ -44,6 +48,22 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
     // **
     // Generate character stuff
     // **
+    generateTraits = function () {
+        db.query('local/typesWithName', {reduce: false, key: 'lifepath', include_docs: true}, function (err, list) {
+            var doc,
+                traitList;
+            if (err || !Array.isArray(list.rows) || list.rows.length === 0) {
+                return;
+            }
+            doc = list.rows[0].doc;
+            traitList = Object.keys(doc.traits);
+            character.traits = {};
+            traitList.forEach(function (trait) {
+                character.traits[trait] = doc.traits[trait][Math.floor(Math.random() * doc.traits[trait].length)];
+            });
+            displayTraits();
+        });
+    };
     generateSkills = function (doc) {
         var addToSkillList,
             findStatOfSkill;
@@ -166,6 +186,16 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
             row.innerHTML = rowInner + '</td>';
         });
     };
+    // Traits need to be retrieved asynchronously so a seperate function to display those.
+    displayTraits = function () {
+        var traits;
+        traits = Object.keys(character.traits);
+        elements.traits.innerHTML = elmDefaults.traits;
+        traits.forEach(function (trait) {
+            var row = elements.traits.insertRow();
+            row.innerHTML = '<td>' + trait + '</td><td>' + character.traits[trait] + '</td>';
+        });
+    };
 
     // **
     // Event Listeners, for user interaction
@@ -180,6 +210,7 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
             generateEdge(doc);
             generateStats(doc);
             generateSkills(doc);
+            generateTraits();
             display();
         });
     });
@@ -201,7 +232,7 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
         } else {
             character.name = elements.name.value;
             character.archetype = elements.charType.value;
-            charDb.post(character, function (err, result) {
+            charDb.post(character, function (err) {
                 if (err) {
                     console.error('Error saving new character', err);
                 }
