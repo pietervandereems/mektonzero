@@ -269,6 +269,7 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
             // display character
             display();
             displaySkills();
+            displayTraits();
         });
     });
 
