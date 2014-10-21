@@ -104,10 +104,17 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
             skillDoc = list.rows[0].doc;
             // Loop through characters starting skills.
             doc.starting_skills.forEach(function (skillObj) {
-                var skill = Object.keys(skillObj)[0],
-                    level = skillObj[skill],
+                var skillList = Object.keys(skillObj),
+                    skill,
+                    level,
                     randSkill,
                     skillAdded;
+                if (skillList.length > 1) {
+                    skill = skillList[Math.floor(Math.random() * skillList.length)];
+                } else {
+                    skill = skillList[0];
+                }
+                level = skillObj[skill];
                 if (skillDoc.Categories[skill]) { // Skill is a generic skill from a category, choose a unique one from that category
                     do {
                         randSkill = pickSkillFromCategory(skillDoc.Categories[skill]);
