@@ -15,9 +15,11 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
         generateSkills,
         generateEdge,
         generateTraits,
+        generateGear,
         display,
         displaySkills,
         displayTraits,
+        displayGear,
         pickSkillFromCategory,
         addView;
 
@@ -32,9 +34,11 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
     elements.saved = document.getElementById('saved');
     elements.save = document.getElementById('save');
     elements.traits = document.getElementById('traits');
+    elements.gear = document.getElementById('gear');
     elmDefaults.stats = elements.stats.innerHTML;
     elmDefaults.skills = elements.skills.innerHTML;
     elmDefaults.traits = elements.traits.innerHTML;
+    elmDefaults.gear = elements.gear.innerHTML;
 
     // **
     // Helper functions
@@ -128,7 +132,7 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
             displaySkills();
         });
     };
-    // Get the archetype edge and display it.
+    // Get the archetype edge
     generateEdge = function (doc) {
         var edges;
         character.edge = {};
@@ -151,7 +155,64 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
             });
         }
     };
-
+    // Get the gear
+    generateGear = function (doc) {
+        character.gear = {};
+        if (Array.isArray(doc.starting_gear) && doc.starting_gear.length > 0) {
+            db.query('local/typesWithName', {reduce: false, key: 'gear', include_docs: true}, function (err, list) {
+                var gearDoc,
+                    gearDocList,
+                    g;
+                if (err || !Array.isArray(list.rows) || list.rows.length === 0) {
+                    return;
+                }
+                gearDoc = list.rows[0].doc;
+                gearDocList = Object.keys(gearDoc);
+                doc.starting_gear.forEach(function (stuffObj) {
+                    var stuffList = Object.keys(stuffObj),
+                        gear,
+                        gearList,
+                        gearSubList,
+                        item;
+                    if (stuffList.length > 1) {
+                        gear = stuffList[Math.floor(Math.random() * stuffList.length)];
+                    } else {
+                        gear = stuffList[0];
+                    }
+                    if (gearDoc[gear]) {
+                        character.gear[gear] = character.gear[gear] || [];
+                        if (Array.isArray(gearDoc[gear])) {
+                            character.gear[gear].push(gearDoc[gear][Math.floor(Math.random() * gearDoc[gear].length)]);
+                            return;
+                        }
+                        if (typeof gearDoc[gear] === "object") {
+                            gearList = Object.keys(gearDoc[gear]);
+                            gearSubList = gearList[Math.floor(Math.random() * gearList.length)];
+                            character.gear[gear].push(gearDoc[gear][gearSubList][Math.floor(Math.random() * gearDoc[gear][gearSubList].length)]);
+                            return;
+                        }
+                        character.gear[gearDoc[gear]].push(gearDoc[gear]);
+                        return;
+                    }
+                    for (g = gearDocList.length - 1; g >= 0; g -= 1) {
+                        item = gearDocList[g];
+                        if (item !== 'type' && item.substr(0, 1) !== '_') {
+                            if (typeof item === 'object') {
+                                if (item[gear]) {
+                                    character.gear[item] = character.gear[item] || [];
+                                    character.gear[item] = item[gear][Math.floor(Math.random() * item[gear].length)];
+                                    return;
+                                }
+                            }
+                        }
+                    }
+                    character.gear.Misc = character.gear.Misc || [];
+                    character.gear.Misc.push(gear);
+                });
+                displayGear();
+            });
+        }
+    };
     // **
     // Display Character
     // **
@@ -203,7 +264,22 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
             row.innerHTML = '<td>' + trait + '</td><td>' + character.traits[trait] + '</td>';
         });
     };
+    // Gear need to be retrieved asynchronously so a seperate function to display those.
+    displayGear = function () {
+        var gearType;
+        gearType = Object.keys(character.gear);
+        elements.gear.innerHTML = elmDefaults.gear;
+        gearType.forEach(function (gear) {
+            var row = elements.gear.insertRow(),
+                rowInner = '';
+            rowInner += '<td>' + gear + '</td><td>';
+            character.gear[gear].forEach(function (stuff) {
+                rowInner += stuff + '<br/>';
+            });
+            row.innerHTML = rowInner + '</td>';
+        });
 
+    };
     // **
     // Event Listeners, for user interaction
     // **
@@ -218,6 +294,7 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
             generateStats(doc);
             generateSkills(doc);
             generateTraits();
+            generateGear(doc);
             display();
         });
     });
@@ -277,6 +354,7 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
             display();
             displaySkills();
             displayTraits();
+            displayGear();
         });
     });
 
