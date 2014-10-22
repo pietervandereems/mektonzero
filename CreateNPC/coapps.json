@@ -3,5 +3,5 @@
     "version": "0.0.0",
     "description": "Create NPC's for mekton",
     "attachments": ["index.html"],
-    "dir": ["js"]
+    "dir": ["js", "img", "css"]
 }
