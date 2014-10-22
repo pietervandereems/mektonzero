@@ -3,3 +3,30 @@ body {
     background-color: black;
     color: silver;
 }
+
+/* Tables */
+caption {
+    color: #E37700;
+}
+
+td {
+    background-color: #161616;
+    border-radius: 5px;
+    padding: 1em;
+}
+
+tr:first-child > td {
+    border-top: 1px solid #565656;
+}
+
+td:first-child {
+    border-left: 1px solid #565656;
+}
+
+td:last-child {
+    border-right: 1px solid #565656;
+}
+
+tr:last-child > td {
+    border-bottom: 1px solid #565656;
+}
