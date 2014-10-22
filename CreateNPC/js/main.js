@@ -21,6 +21,7 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
         displayTraits,
         displayGear,
         pickSkillFromCategory,
+        addSkillToStat,
         addView;
 
     // **
@@ -41,12 +42,25 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
     elmDefaults.gear = elements.gear.innerHTML;
 
     // **
+    // Extend
+    // **
+    String.prototype.capitalize = function () {
+        return this.charAt(0).toUpperCase() + this.slice(1);
+    };
+
+    // **
     // Helper functions
     // **
 
     pickSkillFromCategory = function (category) {
         var skills = Object.keys(category);
         return skills[Math.floor(Math.random() * skills.length)];
+    };
+
+    addSkillToStat = function (skill, stat) {
+        var skillValue = character.skills[stat][skill] || 0,
+            statValue = character.stats[stat] || 0;
+        return parseInt(skillValue, 10) + parseInt(statValue, 10);
     };
 
     // **
@@ -76,6 +90,8 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
         }
         // Add the skill to the internal skilllist.
         addToSkillList = function (skill, value, stat, unique) {
+            stat = stat.toLowerCase();
+            value = parseInt(value, 10);
             character.skills[stat] = character.skills[stat] || {};
             if (unique && character.skills[stat][skill]) { // Skill must be unique
                 return false;
@@ -96,7 +112,7 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
                     return statList[i];
                 }
             }
-            return "Unkown";
+            return "unkown";
         };
         // Gather all available skills, so we know where to place everything and can choose a skill from a category if needed.
         db.query('local/typesWithName', {reduce: false, key: 'skills', include_docs: true}, function (err, list) {
@@ -151,7 +167,8 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
                 if (stat === 'nr') {
                     return;
                 }
-                character.stats[stat] = doc.role_stats[Math.floor(Math.random() * 10)][stat];
+                stat = stat.toLowerCase();
+                character.stats[stat] = parseInt(doc.role_stats[Math.floor(Math.random() * 10)][stat], 10);
             });
         }
     };
@@ -233,7 +250,7 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
         elements.stats.innerHTML = elmDefaults.stats;
         stats.forEach(function (stat) {
             var row = elements.stats.insertRow();
-            row.innerHTML = '<td>' + stat + '</td><td>' + character.stats[stat] + '</td>';
+            row.innerHTML = '<td>' + stat.capitalize() + '</td><td>' + character.stats[stat] + '</td>';
         });
 
     };
@@ -246,10 +263,10 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
             var row = elements.skills.insertRow(),
                 rowInner = '',
                 skills;
-            rowInner += '<td>' + stat + '</td><td>';
+            rowInner += '<td>' + stat.capitalize() + '</td><td>';
             skills = Object.keys(character.skills[stat]);
             skills.forEach(function (skill) {
-                rowInner += skill + ": " + character.skills[stat][skill] + '<br/>';
+                rowInner += skill + ": " + character.skills[stat][skill] + ' (' + addSkillToStat(skill, stat) + ')' + '<br/>';
             });
             row.innerHTML = rowInner + '</td>';
         });
