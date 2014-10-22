@@ -4,6 +4,10 @@ body {
     color: silver;
 }
 
+.small {
+    font-size: smaller;
+}
+
 /* Tables */
 caption {
     color: #E37700;

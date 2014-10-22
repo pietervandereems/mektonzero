@@ -266,7 +266,7 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
             rowInner += '<td>' + stat.capitalize() + '</td><td>';
             skills = Object.keys(character.skills[stat]);
             skills.forEach(function (skill) {
-                rowInner += skill + ": " + character.skills[stat][skill] + ' (' + addSkillToStat(skill, stat) + ')' + '<br/>';
+                rowInner += skill + ": " + character.skills[stat][skill] + ' <span class="small">(' + addSkillToStat(skill, stat) + ')</span>' + '<br/>';
             });
             row.innerHTML = rowInner + '</td>';
         });
