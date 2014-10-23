@@ -19,7 +19,7 @@ td, th {
     padding: 1em;
 }
 
-tr:first-child > td {
+tr:first-child > td , tr:first-child > th {
     border-top: 1px solid #565656;
 }
 
