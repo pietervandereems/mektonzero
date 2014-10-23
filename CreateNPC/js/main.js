@@ -36,10 +36,10 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
     elements.save = document.getElementById('save');
     elements.traits = document.getElementById('traits');
     elements.gear = document.getElementById('gear');
-    elmDefaults.stats = elements.stats.innerHTML;
-    elmDefaults.skills = elements.skills.innerHTML;
-    elmDefaults.traits = elements.traits.innerHTML;
-    elmDefaults.gear = elements.gear.innerHTML;
+    elmDefaults.stats = '<caption>Stats</caption>';
+    elmDefaults.skills = '<caption>Skills</caption>';
+    elmDefaults.traits = '<caption>Traits</caption>';
+    elmDefaults.gear = '<caption>Gear</caption>';
 
     // **
     // Extend
@@ -237,22 +237,28 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
     // Display all characteristics that are available synchronously
     display = function () {
         var edges,
-            stats;
+            stats,
+            statRow,
+            statValueRow;
         // Edges
         edges = Object.keys(character.edge);
         elements.edge.innerHTML = '';
         edges.forEach(function (edge) {
-            elements.edge.innerHTML += '<p>' + edge + ': ' + character.edge[edge] + '</p>';
+            elements.edge.innerHTML += '<p><strong>' + edge + '</strong>: ' + character.edge[edge] + '</p>';
         });
 
         // Stats
         stats = Object.keys(character.stats);
         elements.stats.innerHTML = elmDefaults.stats;
+        statRow = '<tr>';
+        statValueRow = '<tr>';
         stats.forEach(function (stat) {
-            var row = elements.stats.insertRow();
-            row.innerHTML = '<td>' + stat.capitalize() + '</td><td>' + character.stats[stat] + '</td>';
+            //var row = elements.stats.insertRow();
+            //row.innerHTML = '<td>' + stat.capitalize() + '</td><td>' + character.stats[stat] + '</td>';
+            statRow += '<th>' + stat.capitalize() + '</th>';
+            statValueRow += '<td>' + character.stats[stat] + '</td>';
         });
-
+        elements.stats.innerHTML += statRow + '</tr>' + statValueRow + '</tr>';
     };
     // Skilllist needs to be retrieved asynchronously so a seperate function to display those.
     displaySkills = function () {

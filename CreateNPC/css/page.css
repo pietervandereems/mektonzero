@@ -13,7 +13,7 @@ caption {
     color: #E37700;
 }
 
-td {
+td, th {
     background-color: #161616;
     border-radius: 5px;
     padding: 1em;
@@ -23,14 +23,38 @@ tr:first-child > td {
     border-top: 1px solid #565656;
 }
 
-td:first-child {
+td:first-child, th:first-child {
     border-left: 1px solid #565656;
 }
 
-td:last-child {
+td:last-child, th:last-child {
     border-right: 1px solid #565656;
 }
 
 tr:last-child > td {
     border-bottom: 1px solid #565656;
+}
+
+/* Flexbox */
+.flex {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: flex-start;
+    align-content: flex-start;
+
+    /* old browser support */
+    display: -webkit-flex;
+    -webkit-flex-direction: row;
+    -webkit-flex-wrap: wrap;
+    -webkit-justify-content: flex-start;
+    -webkit-align-items: flex-start;
+    -webkit-align-content: flex-start;
+    display: -ms-flexbox;
+    -ms-flex-direction: row;
+    -ms-flex-wrap: wrap;
+    -ms-justify-content: flex-start;
+    -ms-align-items: flex-start;
+    -ms-align-content: flex-start;
 }
