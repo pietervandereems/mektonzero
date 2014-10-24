@@ -37,24 +37,47 @@ tr:last-child > td {
 
 /* Flexbox */
 .flex {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: flex-start;
-    align-items: flex-start;
-    align-content: flex-start;
+    display         : flex;
+    flex-direction  : row;
+    flex-wrap       : wrap;
+    justify-content : space-around;
+    align-items     : flex-start;
+    align-content   : flex-start;
 
     /* old browser support */
-    display: -webkit-flex;
-    -webkit-flex-direction: row;
-    -webkit-flex-wrap: wrap;
-    -webkit-justify-content: flex-start;
-    -webkit-align-items: flex-start;
-    -webkit-align-content: flex-start;
-    display: -ms-flexbox;
-    -ms-flex-direction: row;
-    -ms-flex-wrap: wrap;
-    -ms-justify-content: flex-start;
-    -ms-align-items: flex-start;
-    -ms-align-content: flex-start;
+    display                 : -webkit-flex;
+    -webkit-flex-direction  : row;
+    -webkit-flex-wrap       : wrap;
+    -webkit-justify-content : space-around;
+    -webkit-align-items     : flex-start;
+    -webkit-align-content   : flex-start;
+    display                 : -ms-flexbox;
+    -ms-flex-direction      : row;
+    -ms-flex-wrap           : wrap;
+    -ms-justify-content     : space-around;
+    -ms-align-items         : flex-start;
+    -ms-align-content       : flex-start;
+}
+
+#stats {
+    display         : flex;
+    flex-direction  : row;
+    flex-wrap       : wrap;
+    justify-content : center;
+    align-items     : flex-start;
+    align-content   : flex-start;
+
+    /* old browser support */
+    display                 : -webkit-flex;
+    -webkit-flex-direction  : row;
+    -webkit-flex-wrap       : wrap;
+    -webkit-justify-content : center;
+    -webkit-align-items     : flex-start;
+    -webkit-align-content   : flex-start;
+    display                 : -ms-flexbox;
+    -ms-flex-direction      : row;
+    -ms-flex-wrap           : wrap;
+    -ms-justify-content     : center;
+    -ms-align-items         : flex-start;
+    -ms-align-content       : flex-start;
 }

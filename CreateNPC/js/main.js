@@ -239,7 +239,9 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
         var edges,
             stats,
             statRow,
-            statValueRow;
+            statValueRow,
+            elmStatsInner = '',
+            count = 0;
         // Edges
         edges = Object.keys(character.edge);
         elements.edge.innerHTML = '';
@@ -249,16 +251,24 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
 
         // Stats
         stats = Object.keys(character.stats);
-        elements.stats.innerHTML = elmDefaults.stats;
+        elmStatsInner = '<table>' + elmDefaults.stats;
         statRow = '<tr>';
         statValueRow = '<tr>';
         stats.forEach(function (stat) {
+            if (count !== 0 && count % 6 === 0) {
+                elmStatsInner += statRow + '</tr>' + statValueRow + '</tr></table>';
+                elmStatsInner += '<table>' + elmDefaults.stats;
+                statRow = '<tr>';
+                statValueRow = '<tr>';
+            }
             //var row = elements.stats.insertRow();
             //row.innerHTML = '<td>' + stat.capitalize() + '</td><td>' + character.stats[stat] + '</td>';
             statRow += '<th>' + stat.capitalize() + '</th>';
             statValueRow += '<td>' + character.stats[stat] + '</td>';
+            count += 1;
         });
-        elements.stats.innerHTML += statRow + '</tr>' + statValueRow + '</tr>';
+        elmStatsInner += statRow + '</tr>' + statValueRow + '</tr></table>';
+        elements.stats.innerHTML = elmStatsInner;
     };
     // Skilllist needs to be retrieved asynchronously so a seperate function to display those.
     displaySkills = function () {
