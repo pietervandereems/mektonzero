@@ -359,6 +359,9 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
 
     // A saved character is selected
     elements.saved.addEventListener('change', function (event) {
+        if (event.target.value === '') {
+            return;
+        }
         charDb.get(event.target.value, function (err, doc) {
             var opts,
                 index;
