@@ -4,10 +4,6 @@ body {
     color: silver;
 }
 
-.small {
-    font-size: smaller;
-}
-
 /* lists in tables */
 td ul {
     list-style: none;
@@ -58,7 +54,7 @@ tr:last-child > td {
 }
 
 /* Flexbox */
-.flex {
+div {
     display         : flex;
     flex-direction  : row;
     flex-wrap       : wrap;
@@ -82,24 +78,9 @@ tr:last-child > td {
 }
 
 #stats {
-    display         : flex;
-    flex-direction  : row;
-    flex-wrap       : wrap;
     justify-content : center;
-    align-items     : flex-start;
-    align-content   : flex-start;
 
     /* old browser support */
-    display                 : -webkit-flex;
-    -webkit-flex-direction  : row;
-    -webkit-flex-wrap       : wrap;
     -webkit-justify-content : center;
-    -webkit-align-items     : flex-start;
-    -webkit-align-content   : flex-start;
-    display                 : -ms-flexbox;
-    -ms-flex-direction      : row;
-    -ms-flex-wrap           : wrap;
     -ms-justify-content     : center;
-    -ms-align-items         : flex-start;
-    -ms-align-content       : flex-start;
 }
