@@ -324,12 +324,12 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
             var row = elements.skills.insertRow(),
                 rowInner = '',
                 skills;
-            rowInner += '<td>' + stat.capitalize() + '</td><td>';
+            rowInner += '<td>' + stat.capitalize() + '</td><td><ul>';
             skills = Object.keys(character.skills[stat]);
             skills.forEach(function (skill) {
-                rowInner += skill + ": " + character.skills[stat][skill] + ' <span class="small">(' + addSkillToStat(skill, stat) + ')</span>' + '<br/>';
+                rowInner += '<li data-value="' + addSkillToStat(skill, stat) + '">' + skill + ": " + character.skills[stat][skill] + '</li>';
             });
-            row.innerHTML = rowInner + '</td>';
+            row.innerHTML = rowInner + '</ul></td>';
         });
     };
     // Traits need to be retrieved asynchronously so a seperate function to display those.
@@ -350,15 +350,11 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
         gearType.forEach(function (gear) {
             var row = elements.gear.insertRow(),
                 rowInner = '';
-            rowInner += '<td>' + gear + '</td><td>';
+            rowInner += '<td>' + gear + '</td><td><ul>';
             character.gear[gear].forEach(function (stuff) {
-                rowInner += stuff.gear;
-                if (stuff.value !== undefined && stuff.value !== null && stuff.value !== '') {
-                    rowInner += ' <span class="small">(' + stuff.value + ')</span>';
-                }
-                rowInner += '<br/>';
+                rowInner += '<li data-value="' + stuff.value + '">' + stuff.gear + '</li>';
             });
-            row.innerHTML = rowInner + '</td>';
+            row.innerHTML = rowInner + '</ul></td>';
         });
 
     };

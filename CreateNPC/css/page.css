@@ -8,6 +8,18 @@ body {
     font-size: smaller;
 }
 
+/* lists in tables */
+td ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+td li[data-value]::after {
+    content: " (" attr(data-value) ")";
+    font-size: smaller;
+}
+
 /* Tables */
 caption {
     color: #E37700;
