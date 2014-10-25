@@ -174,6 +174,28 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
     };
     // Get the gear
     generateGear = function (doc) {
+        var pickStuff;
+        pickStuff = function (objectList) {
+            var stuff = {},
+                stuffList,
+                gear,
+                type;
+            do {
+                stuff = stuff[gear] || objectList;
+                stuffList = Object.keys(stuff);
+                if (stuffList.length > 1) {
+                    gear = stuffList[Math.floor(Math.random() * stuffList.length)];
+                } else {
+                    gear = stuffList[0];
+                }
+                type = type || gear;
+            } while (typeof stuff[gear] === 'object');
+            return {
+                type: type,
+                gear: gear,
+                value: stuff[gear]
+            };
+        };
         character.gear = {};
         if (Array.isArray(doc.starting_gear) && doc.starting_gear.length > 0) {
             db.query('local/typesWithName', {reduce: false, key: 'gear', include_docs: true}, function (err, list) {
@@ -186,29 +208,46 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
                 gearDoc = list.rows[0].doc;
                 gearDocList = Object.keys(gearDoc);
                 doc.starting_gear.forEach(function (stuffObj) {
-                    var stuffList = Object.keys(stuffObj),
-                        gear,
+                    var gear,
+                        gearValue,
+                        type,
                         gearList,
                         gearSubList,
-                        item;
-                    if (stuffList.length > 1) {
-                        gear = stuffList[Math.floor(Math.random() * stuffList.length)];
-                    } else {
-                        gear = stuffList[0];
-                    }
-                    if (gearDoc[gear]) {
-                        character.gear[gear] = character.gear[gear] || [];
-                        if (Array.isArray(gearDoc[gear])) {
-                            character.gear[gear].push(gearDoc[gear][Math.floor(Math.random() * gearDoc[gear].length)]);
+                        item,
+                        choosenGear;
+                    choosenGear = pickStuff(stuffObj);
+                    gear = choosenGear.gear;
+                    gearValue = choosenGear.value;
+                    type = choosenGear.type;
+                    if (gearDoc[type]) {
+                        character.gear[type] = character.gear[type] || [];
+                        if (Array.isArray(gearDoc[type])) {
+                            character.gear[type].push({
+                                gear: gearDoc[type][Math.floor(Math.random() * gearDoc[type].length)],
+                                value: gearValue
+                            });
                             return;
                         }
-                        if (typeof gearDoc[gear] === "object") {
-                            gearList = Object.keys(gearDoc[gear]);
+                        if (typeof gearDoc[type] === "object") {
+                            if (gearDoc[type][gear]) {
+                                character.gear[type].push({
+                                    gear: gearDoc[type][gear][Math.floor(Math.random() * gearDoc[type][gear].length)],
+                                    value: gearValue
+                                });
+                                return;
+                            }
+                            gearList = Object.keys(gearDoc[type]);
                             gearSubList = gearList[Math.floor(Math.random() * gearList.length)];
-                            character.gear[gear].push(gearDoc[gear][gearSubList][Math.floor(Math.random() * gearDoc[gear][gearSubList].length)]);
+                            character.gear[type].push({
+                                gear: gearDoc[type][gearSubList][Math.floor(Math.random() * gearDoc[type][gearSubList].length)],
+                                value: gearValue
+                            });
                             return;
                         }
-                        character.gear[gearDoc[gear]].push(gearDoc[gear]);
+                        character.gear[gearDoc[type]].push({
+                            gear: gearDoc[type],
+                            value: gearValue
+                        });
                         return;
                     }
                     for (g = gearDocList.length - 1; g >= 0; g -= 1) {
@@ -217,14 +256,20 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
                             if (typeof item === 'object') {
                                 if (item[gear]) {
                                     character.gear[item] = character.gear[item] || [];
-                                    character.gear[item] = item[gear][Math.floor(Math.random() * item[gear].length)];
+                                    character.gear[item] = {
+                                        gear: item[gear][Math.floor(Math.random() * item[gear].length)],
+                                        value: gearValue
+                                    };
                                     return;
                                 }
                             }
                         }
                     }
                     character.gear.Misc = character.gear.Misc || [];
-                    character.gear.Misc.push(gear);
+                    character.gear.Misc.push({
+                        gear: gear,
+                        value: gearValue
+                    });
                 });
                 displayGear();
             });
@@ -307,7 +352,11 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
                 rowInner = '';
             rowInner += '<td>' + gear + '</td><td>';
             character.gear[gear].forEach(function (stuff) {
-                rowInner += stuff + '<br/>';
+                rowInner += stuff.gear;
+                if (stuff.value !== undefined && stuff.value !== null && stuff.value !== '') {
+                    rowInner += ' <span class="small">(' + stuff.value + ')</span>';
+                }
+                rowInner += '<br/>';
             });
             row.innerHTML = rowInner + '</td>';
         });
