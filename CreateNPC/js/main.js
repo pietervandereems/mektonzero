@@ -14,19 +14,21 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
         generateStats,
         generateSkills,
         generateEdge,
-        generateTraits,
         generateGear,
+        generateLifepath,
         display,
         displaySkills,
-        displayTraits,
         displayGear,
+        displayLifepath,
         pickSkillFromCategory,
         addSkillToStat,
+        rnd,
+        placeName,
         addView;
 
-    // **
+    // **************
     // Shortcuts to interface elements
-    // **
+    // **************
     elements.charType = document.getElementById('chartype');
     elements.stats = document.getElementById('stats');
     elements.edge = document.getElementById('edge');
@@ -34,23 +36,21 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
     elements.name = document.getElementById('name');
     elements.saved = document.getElementById('saved');
     elements.save = document.getElementById('save');
-    elements.traits = document.getElementById('traits');
     elements.gear = document.getElementById('gear');
     elmDefaults.stats = '<caption>Stats</caption>';
     elmDefaults.skills = '<caption>Skills</caption>';
-    elmDefaults.traits = '<caption>Traits</caption>';
     elmDefaults.gear = '<caption>Gear</caption>';
 
-    // **
+    // **************
     // Extend
-    // **
+    // **************
     String.prototype.capitalize = function () {
         return this.charAt(0).toUpperCase() + this.slice(1);
     };
 
-    // **
+    // **************
     // Helper functions
-    // **
+    // **************
 
     pickSkillFromCategory = function (category) {
         var skills = Object.keys(category);
@@ -63,23 +63,50 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
         return parseInt(skillValue, 10) + parseInt(statValue, 10);
     };
 
-    // **
+    rnd = function (min, max) {
+        if (max === undefined || max === null) {
+            max = min;
+            min = 0;
+        }
+        return Math.floor(Math.random() * (max - min)) + min;
+    };
+
+    placeName = function (text) {
+        if (elements.name.value) {
+            return text.replace('{character}', elements.name.value);
+        }
+        return text;
+    };
+
+    // **************
     // Generate character stuff
-    // **
-    generateTraits = function () {
+    // **************
+    generateLifepath = function (start, elmTable, type) {
+        var doc,
+            follow;
+        follow = function (from) {
+            if (!Array.isArray(doc[from])) {
+                return;
+            }
+            character[type][from] = doc[from][rnd(doc[from].length)];
+            if (character[type][from].next) {
+                follow(character[type][from].next);
+            }
+        };
+        if (!type) {
+            type = start;
+        }
         db.query('local/typesWithName', {reduce: false, key: 'lifepath', include_docs: true}, function (err, list) {
-            var doc,
-                traitList;
             if (err || !Array.isArray(list.rows) || list.rows.length === 0) {
                 return;
             }
             doc = list.rows[0].doc;
-            traitList = Object.keys(doc.traits);
-            character.traits = {};
-            traitList.forEach(function (trait) {
-                character.traits[trait] = doc.traits[trait][Math.floor(Math.random() * doc.traits[trait].length)];
-            });
-            displayTraits();
+            if (!doc[start]) {
+                return;
+            }
+            character[type] = {};
+            follow(start);
+            displayLifepath(elmTable, type);
         });
     };
     generateSkills = function (doc) {
@@ -275,9 +302,10 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
             });
         }
     };
-    // **
+
+    // **************
     // Display Character
-    // **
+    // **************
 
     // Display all characteristics that are available synchronously
     display = function () {
@@ -306,8 +334,6 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
                 statRow = '<tr>';
                 statValueRow = '<tr>';
             }
-            //var row = elements.stats.insertRow();
-            //row.innerHTML = '<td>' + stat.capitalize() + '</td><td>' + character.stats[stat] + '</td>';
             statRow += '<th>' + stat.capitalize() + '</th>';
             statValueRow += '<td>' + character.stats[stat] + '</td>';
             count += 1;
@@ -332,21 +358,32 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
             row.innerHTML = rowInner + '</ul></td>';
         });
     };
-    // Traits need to be retrieved asynchronously so a seperate function to display those.
-    displayTraits = function () {
-        var traits;
-        traits = Object.keys(character.traits);
-        elements.traits.innerHTML = elmDefaults.traits;
-        traits.forEach(function (trait) {
-            var row = elements.traits.insertRow();
-            row.innerHTML = '<td>' + trait + '</td><td>' + character.traits[trait] + '</td>';
+    // Display Lifepath from the lifepath document
+    displayLifepath = function (element, type) {
+        var periods,
+            table = '';
+        element.innerHTML = '';
+        if (!character[type]) {
+            return;
+        }
+        periods = Object.keys(character[type]);
+        table += '<caption>' + type.capitalize() + '</caption>';
+        periods.forEach(function (period) {
+            table += '<tr><td>' + period + '</td><td>' + placeName(character[type][period].text) + '</td></tr>';
         });
+        if (element.nodeName !== 'TABLE') {
+            table = '<table>' + table + '</table>';
+        }
+        element.innerHTML = table;
     };
     // Gear need to be retrieved asynchronously so a seperate function to display those.
     displayGear = function () {
         var gearType;
-        gearType = Object.keys(character.gear);
         elements.gear.innerHTML = elmDefaults.gear;
+        if (!character.gear) {
+            return;
+        }
+        gearType = Object.keys(character.gear);
         gearType.forEach(function (gear) {
             var row = elements.gear.insertRow(),
                 rowInner = '';
@@ -358,9 +395,9 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
         });
 
     };
-    // **
+    // **************
     // Event Listeners, for user interaction
-    // **
+    // **************
     // A new archetype is selected
     elements.charType.addEventListener('change', function (event) {
         db.get(event.target.value, function (err, doc) {
@@ -371,7 +408,8 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
             generateEdge(doc);
             generateStats(doc);
             generateSkills(doc);
-            generateTraits();
+            generateLifepath('Hair Color', document.getElementById('traits'), 'Traits');
+            generateLifepath('Romantic life', document.getElementById('lifepath'));
             generateGear(doc);
             display();
         });
@@ -434,14 +472,15 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
             // display character
             display();
             displaySkills();
-            displayTraits();
             displayGear();
+            displayLifepath(document.getElementById('traits'), 'Traits');
+            displayLifepath(document.getElementById('lifepath'), 'Romantic life');
         });
     });
 
-    // **
+    // **************
     // Update
-    // **
+    // **************
     // Fill the archetype selection element.
     updateSelection = function () {
         db.query('local/typesWithName', {reduce: false, key: 'archetype'}, function (err, list) {
@@ -490,9 +529,9 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
         });
     };
 
-    // **
+    // **************
     // Database
-    // **
+    // **************
     addView = function (view, cb) {
         switch (view) {
         case 'local':
