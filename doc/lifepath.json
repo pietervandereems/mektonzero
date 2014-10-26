@@ -1,0 +1,141 @@
+{
+    "_id": "69c18d1c79a3aab72a87b32ef10122ef",
+    "Your romantic life": [
+        {
+            "text": "Currently involved in a romantic situation",
+            "next": "Your ship comes in"
+        },
+        {
+            "text": "Currently involved in a romantic situation",
+            "next": "Your ship comes in"
+        },
+        {
+            "text": "Currently involved in a romantic situation",
+            "next": "Your ship comes in"
+        },
+        {
+            "text": "Currently not involed with anyone",
+            "next": "On the hunt"
+        },
+        {
+            "text": "Currently not involed with anyone",
+            "next": "On the hunt"
+        },
+        {
+            "text": "Currently not involed with anyone",
+            "next": "On the hunt"
+        },
+        {
+            "text": "Currently not involed with anyone",
+            "next": "On the hunt"
+        },
+        {
+            "text": "Recovering from a tragedy in {character}'s romantic past",
+            "next": "Tragic love afair"
+        },
+        {
+            "text": "Recovering from a tragedy in {character}'s romantic past",
+            "next": "Tragic love afair"
+        },
+        {
+            "text": "Recovering from a tragedy in {character}'s romantic past",
+            "next": "Tragic love afair"
+        },
+    ],
+    "Your ship comes in": [
+        {
+            "text": "Lovers friend(s)/family/relative(s) hate {character}"
+        },
+        {
+            "text": "{character}'s friend(s)/family/relative(s) hate lover"
+        },
+        {
+            "text": "One of them has a romantic rival"
+        },
+        {
+            "text": "They are currently seperated in some way"
+        },
+        {
+            "text": "Tsundere! They are constantly fighting (but love making up)"
+        },
+        {
+            "text": "One of them is insanely jealous"
+        },
+        {
+            "text": "{character} suspects lover is seeing someone else"
+        },
+        {
+            "text": "Both have feelings for each other, but no one has 'confessed' to the other yet"
+        },
+        {
+            "text": "Everything is gone fine (for now...)"
+        },
+        {
+            "text": "Everything is gone fine (for now...)"
+        }
+    ],
+    "On the hunt": [
+        {
+            "text": "{character} will date anything that moves"
+        },
+        {
+            "text": "{character} will date anything that moves"
+        },
+        {
+            "text": "{character} is waiting for 'the right one'"
+        },
+        {
+            "text": "{character} is waiting for 'the right one'"
+        },
+        {
+            "text": "{character} is waiting for 'the right one'"
+        },
+        {
+            "text": "{character} hasn't got time to wait on 'Romance'"
+        },
+        {
+            "text": "{character} hasn't got time to wait on 'Romance'"
+        },
+        {
+            "text": "{character} doesn't want to get 'Serious'"
+        },
+        {
+            "text": "{character} doesn't want to get 'Serious'"
+        },
+        {
+            "text": "Sex?Romance? What's that?"
+        },
+        {
+            "text": "Sex?Romance? What's that?"
+        }
+    ],
+    "Tragic love affair": [
+        {
+            "text": "Lover was killed in military Action!"
+        },
+        {
+            "text": "Lover was killed in an accident unrelated to warfare"
+        },
+        {
+            "text": "Lover mysteriously vanished"
+        },
+        {
+            "text": "Lover died in a suspicious accident"
+        },
+        {
+            "text": "Lover/{character} left with no explanation, with orders to never seek her/him out"
+        },
+        {
+            "text": "Lover/{character} was kidnapped or imprisoned"
+        },
+        {
+            "text": "Lover/{character} defected to the 'Other Side'"
+        },
+        {
+            "text": "Society keeps them apart"
+        },
+        {
+            "text": "A rival cut {character} out of the action"
+        }
+    ]
+}
