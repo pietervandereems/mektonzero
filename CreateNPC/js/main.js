@@ -23,6 +23,7 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
         pickSkillFromCategory,
         addSkillToStat,
         rnd,
+        weightedRnd,
         placeName,
         addView;
 
@@ -69,6 +70,28 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
             min = 0;
         }
         return Math.floor(Math.random() * (max - min)) + min;
+    };
+
+    weightedRnd = function (list, weights) { // examples list = ["skill1", "skill2"], weights = [1,4]
+        var rand,
+            totalWeight,
+            nr,
+            i,
+            l,
+            sum = 0;
+        rand = function (max) {
+            return (Math.random() * max).toFixed(2);
+        };
+        totalWeight = weights.reduce(function (prev, cur) {
+            return prev + cur;
+        });
+        nr = rand(totalWeight);
+        for (i = 0, l = weights.length; i <= l; i += 1) {
+            sum += weights[i];
+            if (nr <= sum) {
+                return list[i];
+            }
+        }
     };
 
     placeName = function (text) {
