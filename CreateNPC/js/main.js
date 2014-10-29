@@ -12,7 +12,6 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
         character = {},
         checkRequest,
         manifestUrl = 'https://zero.mekton.nl/manifest.webapp',
-        archetypesLoaded = false,
         updateSelection,
         updateSavedChar,
         generateStats,
@@ -540,7 +539,6 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
                 });
                 elements.charType.innerHTML = options;
             }
-            archetypesLoaded = true;
         });
     };
 
@@ -654,6 +652,9 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
             })
             .on('error', function (err) {
                 console.error('error', err);
+            })
+            .on('complete', function () { // will also be called on a replicator.cancel()
+                updateSelection();
             });
     };
 
@@ -686,9 +687,6 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
                 replicator.cancel();
             }
             battery.removeEventListener('levelchange', levelListener);
-            if (!archetypesLoaded) {
-                updateSelection();
-            }
             setMsg('Low battery, halting replication archetypes');
         };
         levelListener = function () {
