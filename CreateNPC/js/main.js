@@ -4,11 +4,14 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
     'use strict';
     var db = new Pouchdb('mekton'),
         charDb = new Pouchdb('localChars'),
+        replicator,
         initialPhase = true,
         localCharacter = {},
         elements = {},
         elmDefaults = {},
         character = {},
+        checkRequest,
+        manifestUrl = 'https://zero.mekton.nl/manifest.webapp',
         updateSelection,
         updateSavedChar,
         generateStats,
@@ -22,14 +25,17 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
         displayLifepath,
         pickSkillFromCategory,
         addSkillToStat,
+        setBatteryManagers,
         rnd,
         weightedRnd,
         placeName,
-        addView;
+        addView,
+        addInstallButton,
+        startReplicator;
 
-    // **************
+    // **************************************************************************************************
     // Shortcuts to interface elements
-    // **************
+    // **************************************************************************************************
     elements.charType = document.getElementById('chartype');
     elements.stats = document.getElementById('stats');
     elements.edge = document.getElementById('edge');
@@ -38,20 +44,21 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
     elements.saved = document.getElementById('saved');
     elements.save = document.getElementById('save');
     elements.gear = document.getElementById('gear');
+    elements.install = document.getElementById('install');
     elmDefaults.stats = '<caption>Stats</caption>';
     elmDefaults.skills = '<caption>Skills</caption>';
     elmDefaults.gear = '<caption>Gear</caption>';
 
-    // **************
+    // **************************************************************************************************
     // Extend
-    // **************
+    // **************************************************************************************************
     String.prototype.capitalize = function () {
         return this.charAt(0).toUpperCase() + this.slice(1);
     };
 
-    // **************
+    // **************************************************************************************************
     // Helper functions
-    // **************
+    // **************************************************************************************************
 
     pickSkillFromCategory = function (category) {
         var skills = Object.keys(category);
@@ -101,9 +108,9 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
         return text;
     };
 
-    // **************
+    // **************************************************************************************************
     // Generate character stuff
-    // **************
+    // **************************************************************************************************
     generateLifepath = function (start, elmTable, type) {
         var doc,
             follow;
@@ -326,9 +333,9 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
         }
     };
 
-    // **************
+    // **************************************************************************************************
     // Display Character
-    // **************
+    // **************************************************************************************************
 
     // Display all characteristics that are available synchronously
     display = function () {
@@ -418,9 +425,9 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
         });
 
     };
-    // **************
+    // **************************************************************************************************
     // Event Listeners, for user interaction
-    // **************
+    // **************************************************************************************************
     // A new archetype is selected
     elements.charType.addEventListener('change', function (event) {
         db.get(event.target.value, function (err, doc) {
@@ -501,9 +508,9 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
         });
     });
 
-    // **************
+    // **************************************************************************************************
     // Update
-    // **************
+    // **************************************************************************************************
     // Fill the archetype selection element.
     updateSelection = function () {
         db.query('local/typesWithName', {reduce: false, key: 'archetype'}, function (err, list) {
@@ -552,9 +559,39 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
         });
     };
 
-    // **************
+    // **************************************************************************************************
+    // Firefox install app
+    // **************************************************************************************************
+    if (window.navigator.mozApps) { // only when mozApps is available
+
+        // Enable install button and listen to it's click events.
+        addInstallButton = function () {
+            elements.install.style.display = 'block';
+            elements.install.addEventListener('click', function () {
+                var request = window.navigator.mozApps.install(manifestUrl);
+                request.onsuccess = function () {
+                    console.log('App installed', this.result);
+                };
+                request.onerror = function () {
+                    console.error('App is not installed', this.error);
+                };
+            });
+        };
+        // check if we are already installed
+        checkRequest = window.navigator.mozApps.checkInstalled(manifestUrl);
+        checkRequest.onsuccess = function () {
+            if (!this.result) {
+                // app is not installed, add the button;
+                addInstallButton();
+            }
+        };
+    }
+
+
+    // **************************************************************************************************
     // Database
-    // **************
+    // **************************************************************************************************
+
     addView = function (view, cb) {
         switch (view) {
         case 'local':
@@ -599,13 +636,73 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
             });
     });
     // Update local mekton database, and listen to replicate events
-    Pouchdb.replicate('https://zero.mekton.nl/db/mekton', 'mekton', {live: true, filter: 'mekton/typedDocs'})
-        .on('uptodate', function () {
-            updateSelection();
-        })
-        .on('error', function (err) {
-            console.error('error', err);
-        });
+    startReplicator = function () {
+        replicator = Pouchdb.replicate('https://zero.mekton.nl/db/mekton', 'mekton', {live: true, filter: 'mekton/typedDocs'})
+            .on('uptodate', function () {
+                updateSelection();
+            })
+            .on('error', function (err) {
+                console.error('error', err);
+            });
+    };
+
+    // **************************************************************************************************
+    // Main
+    // **************************************************************************************************
+    // Start replication
+    startReplicator();
     // Clear fields
     elements.name.value = '';
+
+
+    // **************************************************************************************************
+    // Offline usage, this is last to ensure everything is defined first
+    // **************************************************************************************************
+    setBatteryManagers = function (battery) {
+        var dischargeListener,
+            fullMode,
+            lowMode;
+
+        fullMode = function () {
+            battery.addEventListener('dischargingtimechange', dischargeListener);
+            if (!replicator || replicator.cancelled) {
+                startReplicator();
+            }
+        };
+        lowMode = function () {
+            if (!replicator.cancelled) {
+                replicator.cancel();
+            }
+            battery.removeEventListener('dischargingtimechange', dischargeListener);
+        };
+        dischargeListener = function () {
+            if (battery.dischargingTime < 900) { // 15 minutes of charge left;
+                lowMode();
+            }
+        };
+
+        battery.addEventListener('chargingchange', function () {
+            if (battery.charging) {
+                fullMode();
+            }
+        });
+
+        // ** Main **
+        if (battery.charging || battery.dischargingTime > 900) {
+            fullMode();
+        } else {
+            lowMode();
+        }
+    };
+
+    if (navigator.battery) { // Old battery api
+        setBatteryManagers(navigator.battery);
+    }
+
+    if (navigator.getBattery) { // new battery api
+        navigator.getBattery()
+            .then(function (battery) {
+                setBatteryManagers(battery);
+            });
+    }
 });

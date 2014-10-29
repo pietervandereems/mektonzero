@@ -4,6 +4,11 @@ body {
     color: silver;
 }
 
+/* install button */
+#install {
+    display: none;
+}
+
 /* lists in tables */
 td ul {
     list-style: none;

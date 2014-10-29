@@ -1,0 +1,14 @@
+{
+  "name": "CreateNPC",
+  "description": "Create an npc for Mekton Zero",
+  "launch_path": "/index.html",
+  "icons": {
+    "512": "/img/rejon_Person_Outline_1.512.png",
+    "128": "/img/rejon_Person_Outline_1.128.png"
+  },
+  "developer": {
+    "name": "Pieter van der Eems",
+    "url": "https://zero.mekton.nl"
+  },
+  "default_locale": "en"
+}
