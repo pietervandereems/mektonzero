@@ -12,6 +12,7 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
         character = {},
         checkRequest,
         manifestUrl = 'https://zero.mekton.nl/manifest.webapp',
+        archetypesLoaded = false,
         updateSelection,
         updateSavedChar,
         generateStats,
@@ -31,6 +32,7 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
         placeName,
         addView,
         addInstallButton,
+        setMsg,
         startReplicator;
 
     // **************************************************************************************************
@@ -45,6 +47,7 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
     elements.save = document.getElementById('save');
     elements.gear = document.getElementById('gear');
     elements.install = document.getElementById('install');
+    elements.consol = document.getElementById('consol');
     elmDefaults.stats = '<caption>Stats</caption>';
     elmDefaults.skills = '<caption>Skills</caption>';
     elmDefaults.gear = '<caption>Gear</caption>';
@@ -106,6 +109,13 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
             return text.replace('{character}', elements.name.value);
         }
         return text;
+    };
+
+    setMsg = function (msg) {
+        elements.consol.innerHTML = msg;
+        window.setTimeout(function () {
+            elements.consol.innerHTML = '';
+        }, 5000);
     };
 
     // **************************************************************************************************
@@ -530,6 +540,7 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
                 });
                 elements.charType.innerHTML = options;
             }
+            archetypesLoaded = true;
         });
     };
 
@@ -659,24 +670,29 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
     // Offline usage, this is last to ensure everything is defined first
     // **************************************************************************************************
     setBatteryManagers = function (battery) {
-        var dischargeListener,
+        var levelListener,
             fullMode,
             lowMode;
 
         fullMode = function () {
-            battery.addEventListener('dischargingtimechange', dischargeListener);
+            battery.addEventListener('levelchange', levelListener);
             if (!replicator || replicator.cancelled) {
                 startReplicator();
+                setMsg('We have power again, starting replication archetypes');
             }
         };
         lowMode = function () {
             if (!replicator.cancelled) {
                 replicator.cancel();
             }
-            battery.removeEventListener('dischargingtimechange', dischargeListener);
+            battery.removeEventListener('levelchange', levelListener);
+            if (!archetypesLoaded) {
+                updateSelection();
+            }
+            setMsg('Low battery, halting replication archetypes');
         };
-        dischargeListener = function () {
-            if (battery.dischargingTime < 900) { // 15 minutes of charge left;
+        levelListener = function () {
+            if (!battery.charging && battery.level < 0.18) { // battery at 17% or less
                 lowMode();
             }
         };
@@ -688,7 +704,7 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
         });
 
         // ** Main **
-        if (battery.charging || battery.dischargingTime > 900) {
+        if (battery.charging || battery.level >= 0.18) {
             fullMode();
         } else {
             lowMode();
