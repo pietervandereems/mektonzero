@@ -652,6 +652,9 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
             })
             .on('error', function (err) {
                 console.error('error', err);
+                if (err.status && err.status === 405) { // We could be in offline mode, render what we have
+                    updateSelection();
+                }
             })
             .on('complete', function () { // will also be called on a replicator.cancel()
                 updateSelection();

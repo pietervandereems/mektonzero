@@ -2,6 +2,6 @@
     "name": "mekton",
     "version": "0.2.1",
     "description": "Create NPC's for mekton",
-    "attachments": ["index.html", "manifest.webapp"],
+    "attachments": ["index.html", "manifest.webapp", "cache.manifest"],
     "dir": ["js", "img", "css"]
 }
