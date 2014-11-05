@@ -58,6 +58,13 @@ tr:last-child > td {
     text-align: center;
 }
 
+#stats p {
+    color: #E37700;
+    width: 100%;
+    text-align: center;
+    margin: 0;
+}
+
 /* Flexbox */
 div {
     display         : flex;

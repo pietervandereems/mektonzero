@@ -47,7 +47,7 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
     elements.gear = document.getElementById('gear');
     elements.install = document.getElementById('install');
     elements.consol = document.getElementById('consol');
-    elmDefaults.stats = '<caption>Stats</caption>';
+    elmDefaults.stats = '<p>Stats</p>';
     elmDefaults.skills = '<caption>Skills</caption>';
     elmDefaults.gear = '<caption>Gear</caption>';
 
@@ -363,13 +363,14 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
 
         // Stats
         stats = Object.keys(character.stats);
-        elmStatsInner = '<table>' + elmDefaults.stats;
+
+        elmStatsInner =  elmDefaults.stats + '<table>';
         statRow = '<tr>';
         statValueRow = '<tr>';
         stats.forEach(function (stat) {
-            if (count !== 0 && count % 6 === 0) {
+            if (count !== 0 && count % 4 === 0) {
                 elmStatsInner += statRow + '</tr>' + statValueRow + '</tr></table>';
-                elmStatsInner += '<table>' + elmDefaults.stats;
+                elmStatsInner += '<table>';
                 statRow = '<tr>';
                 statValueRow = '<tr>';
             }
