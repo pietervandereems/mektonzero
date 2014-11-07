@@ -364,22 +364,11 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
         // Stats
         stats = Object.keys(character.stats);
 
-        elmStatsInner =  elmDefaults.stats + '<table>';
-        statRow = '<tr>';
-        statValueRow = '<tr>';
+        elmStatsInner =  elmDefaults.stats + '<ul>';
         stats.forEach(function (stat) {
-            if (count !== 0 && count % 4 === 0) {
-                elmStatsInner += statRow + '</tr>' + statValueRow + '</tr></table>';
-                elmStatsInner += '<table>';
-                statRow = '<tr>';
-                statValueRow = '<tr>';
-            }
-            statRow += '<th>' + stat.capitalize() + '</th>';
-            statValueRow += '<td>' + character.stats[stat] + '</td>';
-            count += 1;
+            elmStatsInner += '<li data-value="' + character.stats[stat] + '">' + stat.capitalize() + '</li>';
         });
-        elmStatsInner += statRow + '</tr>' + statValueRow + '</tr></table>';
-        elements.stats.innerHTML = elmStatsInner;
+        elements.stats.innerHTML = elmStatsInner + '</ul>';
     };
     // Skilllist needs to be retrieved asynchronously so a seperate function to display those.
     displaySkills = function () {
@@ -581,6 +570,7 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
                 var request = window.navigator.mozApps.install(manifestUrl);
                 request.onsuccess = function () {
                     console.log('App installed', this.result);
+                    elements.install.style.display = 'none';
                 };
                 request.onerror = function () {
                     console.error('App is not installed', this.error);
