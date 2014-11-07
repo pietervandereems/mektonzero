@@ -11,7 +11,7 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
         elmDefaults = {},
         character = {},
         checkRequest,
-        manifestUrl = 'https://zero.mekton.nl/CreatePC/manifest.webapp',
+        manifestUrl = 'https://zero.mekton.nl/createpc/manifest.webapp',
         updateSelection,
         updateSavedChar,
         generateStats,
@@ -27,7 +27,6 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
         addSkillToStat,
         setBatteryManagers,
         rnd,
-        weightedRnd,
         placeName,
         addView,
         addInstallButton,
@@ -81,6 +80,7 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
         return Math.floor(Math.random() * (max - min)) + min;
     };
 
+/*
     weightedRnd = function (list, weights) { // examples list = ["skill1", "skill2"], weights = [1,4]
         var rand,
             totalWeight,
@@ -102,6 +102,7 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
             }
         }
     };
+*/
 
     placeName = function (text) {
         if (elements.name.value) {
@@ -364,22 +365,11 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
         // Stats
         stats = Object.keys(character.stats);
 
-        elmStatsInner =  elmDefaults.stats + '<table>';
-        statRow = '<tr>';
-        statValueRow = '<tr>';
+        elmStatsInner =  elmDefaults.stats + '<ul>';
         stats.forEach(function (stat) {
-            if (count !== 0 && count % 4 === 0) {
-                elmStatsInner += statRow + '</tr>' + statValueRow + '</tr></table>';
-                elmStatsInner += '<table>';
-                statRow = '<tr>';
-                statValueRow = '<tr>';
-            }
-            statRow += '<th>' + stat.capitalize() + '</th>';
-            statValueRow += '<td>' + character.stats[stat] + '</td>';
-            count += 1;
+            elmStatsInner += '<li data-value="' + character.stats[stat] + '">' + stat.capitalize() + '</li>';
         });
-        elmStatsInner += statRow + '</tr>' + statValueRow + '</tr></table>';
-        elements.stats.innerHTML = elmStatsInner;
+        elements.stats.innerHTML = elmStatsInner + '</ul>';
     };
     // Skilllist needs to be retrieved asynchronously so a seperate function to display those.
     displaySkills = function () {
@@ -518,6 +508,11 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
         });
     });
 
+    // Editable stats
+    elements.stats.addEventListener('dblclick', function (event) {
+        console.log('stats dblclick, event', event);
+    });
+
     // **************************************************************************************************
     // Update
     // **************************************************************************************************
@@ -581,6 +576,7 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
                 var request = window.navigator.mozApps.install(manifestUrl);
                 request.onsuccess = function () {
                     console.log('App installed', this.result);
+                    elements.install.style.display = 'none';
                 };
                 request.onerror = function () {
                     console.error('App is not installed', this.error);
