@@ -367,7 +367,7 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
 
         elmStatsInner =  elmDefaults.stats + '<ul>';
         stats.forEach(function (stat) {
-            elmStatsInner += '<li data-value="' + character.stats[stat] + '">' + stat.capitalize() + '</li>';
+            elmStatsInner += '<li contenteditable="true" data-original-value="' + character.stats[stat] + '" data-type="' + stat.capitalize() + '">' + character.stats[stat] + '</li>';
         });
         elements.stats.innerHTML = elmStatsInner + '</ul>';
     };

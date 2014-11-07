@@ -63,12 +63,13 @@ tr:last-child > td {
     border-radius: 5px;
     text-align: center;
     min-width: 3em;
+    color: orange;
 }
 
-#stats li[data-value]::after {
-    content:  ' ' attr(data-value);
-    color: orange;
+#stats li[data-type]::before {
+    content:  ' ' attr(data-type);
     display: table-row
+    color: silver;
 }
 
 #stats p {
