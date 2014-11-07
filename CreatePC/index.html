@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html manifest="/cache.manifest">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="css/page.css" />
+    <script data-main="js/main.js" src="js/require.js"></script>
+    <title>Create PC - Mekton Zero -</title>
+</head>
+<body>
+    <h1>Create PC</h1>
+    <button id="install">Install</button>
+    <div id="consol"></div>
+    <section id="selection">
+        <h2>Select</h2>
+        <form>
+            <label>Character Type: <select id="chartype"><option>Loading..</option></select></label>
+            <label>Name: <input id="name" type="text"></label><button id="save">Save</button>
+            <label>Saved: <select id="saved"><option>Loading...</option></select></label>
+        </form>
+    </section>
+    <section id="result">
+        <h2>Result</h2>
+        <div id="edge"></div>
+        <div id="stats"></div>
+        <div>
+            <table id="skills"></table>
+            <table id="traits"></table>
+            <table id="gear"></table>
+        </div>
+        <div id="lifepath"></div>
+    </section>
+</body>
+</html>

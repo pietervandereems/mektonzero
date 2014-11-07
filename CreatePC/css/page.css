@@ -1,0 +1,98 @@
+body {
+    background-image: url("/img/bg20.gif");
+    background-color: black;
+    color: silver;
+}
+
+/* install button */
+#install {
+    display: none;
+}
+
+/* lists in tables */
+td ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+td li[data-value]::after {
+    content: " (" attr(data-value) ")";
+    font-size: smaller;
+}
+
+/* Tables */
+caption {
+    color: #E37700;
+}
+
+td, th {
+    background-color: #161616;
+    border-radius: 5px;
+    padding: 1em;
+}
+
+tr:first-child > td , tr:first-child > th {
+    border-top: 1px solid #565656;
+}
+
+td:first-child, th:first-child {
+    border-left: 1px solid #565656;
+}
+
+td:last-child, th:last-child {
+    border-right: 1px solid #565656;
+}
+
+tr:last-child > td {
+    border-bottom: 1px solid #565656;
+}
+
+/* Stats */
+#stats {
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+
+#stats td, #stats th {
+    text-align: center;
+}
+
+#stats p {
+    color: #E37700;
+    width: 100%;
+    text-align: center;
+    margin: 0;
+}
+
+/* Flexbox */
+div {
+    display         : flex;
+    flex-direction  : row;
+    flex-wrap       : wrap;
+    justify-content : space-around;
+    align-items     : flex-start;
+    align-content   : flex-start;
+
+    /* old browser support */
+    display                 : -webkit-flex;
+    -webkit-flex-direction  : row;
+    -webkit-flex-wrap       : wrap;
+    -webkit-justify-content : space-around;
+    -webkit-align-items     : flex-start;
+    -webkit-align-content   : flex-start;
+    display                 : -ms-flexbox;
+    -ms-flex-direction      : row;
+    -ms-flex-wrap           : wrap;
+    -ms-justify-content     : space-around;
+    -ms-align-items         : flex-start;
+    -ms-align-content       : flex-start;
+}
+
+#stats {
+    justify-content : center;
+
+    /* old browser support */
+    -webkit-justify-content : center;
+    -ms-justify-content     : center;
+}
