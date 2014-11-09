@@ -55,11 +55,17 @@ tr:last-child > td {
     margin-bottom: 1em;
 }
 
+/* Needed because chrome fucks up */
+#stats ul {
+    width: 100%;
+    text-align: center;
+}
+
 #stats li {
     display: inline-table;
     padding: 1em;
     border: 1px solid #565656;
-    background: black;
+    background: #161616;
     border-radius: 5px;
     text-align: center;
     min-width: 3em;
