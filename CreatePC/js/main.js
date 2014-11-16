@@ -4,12 +4,14 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
     'use strict';
     var db = new Pouchdb('mekton'),
         charDb = new Pouchdb('localChars'),
+        statsList = {},
         replicator,
         initialPhase = true,
         localCharacter = {},
         elements = {},
         elmDefaults = {},
         character = {},
+        selectedElement,
         checkRequest,
         manifestUrl = 'https://zero.mekton.nl/createpc/manifest.webapp',
         updateSelection,
@@ -28,9 +30,11 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
         setBatteryManagers,
         rnd,
         placeName,
+        setMsg,
+        compareInt,
+        restoreElement,
         addView,
         addInstallButton,
-        setMsg,
         startReplicator;
 
     // **************************************************************************************************
@@ -46,6 +50,7 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
     elements.gear = document.getElementById('gear');
     elements.install = document.getElementById('install');
     elements.consol = document.getElementById('consol');
+    elements.menu = document.getElementById('menu');
     elmDefaults.stats = '<p>Stats</p>';
     elmDefaults.skills = '<caption>Skills</caption>';
     elmDefaults.gear = '<caption>Gear</caption>';
@@ -116,6 +121,18 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
         window.setTimeout(function () {
             elements.consol.innerHTML = '';
         }, 5000);
+    };
+
+    compareInt = function (a, b) {
+        return (parseInt(a, 10) - parseInt(b, 10));
+    };
+
+    restoreElement = function (element, value) {
+        value = parseInt(value, 10) || parseInt(element.dataset.original_value, 10);
+        element.innerHTML = value;
+        character.stats[element.dataset.type.toLowerCase()] = value;
+        element.onblur = undefined;
+        element.onchange = undefined;
     };
 
     // **************************************************************************************************
@@ -228,12 +245,25 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
     generateStats = function (doc) {
         var stats;
         character.stats = {};
+        statsList = {};
         if (Array.isArray(doc.role_stats) && doc.role_stats.length > 0) {
             stats = Object.keys(doc.role_stats[0]);
+            doc.role_stats.forEach(function (rstat) { // Create a list of all available values for later edit use by user
+                stats.forEach(function (stat) {
+                    if (stat === 'nr') {
+                        return;
+                    }
+                    statsList[stat] = statsList[stat] || [];
+                    if (statsList[stat].indexOf(rstat[stat]) === -1) {
+                        statsList[stat].push(rstat[stat]);
+                    }
+                });
+            });
             stats.forEach(function (stat) {
                 if (stat === 'nr') {
                     return;
                 }
+                statsList[stat].sort(compareInt); // We want to sort it for later use;
                 stat = stat.toLowerCase();
                 character.stats[stat] = parseInt(doc.role_stats[Math.floor(Math.random() * 10)][stat], 10);
             });
@@ -351,10 +381,7 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
     display = function () {
         var edges,
             stats,
-            statRow,
-            statValueRow,
-            elmStatsInner = '',
-            count = 0;
+            elmStatsInner = '';
         // Edges
         edges = Object.keys(character.edge);
         elements.edge.innerHTML = '';
@@ -367,10 +394,20 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
 
         elmStatsInner =  elmDefaults.stats + '<ul>';
         stats.forEach(function (stat) {
-            elmStatsInner += '<li contenteditable="true" data-original-value="' + character.stats[stat] + '" data-type="' + stat.capitalize() + '">' + character.stats[stat] + '</li>';
+            elmStatsInner += '<li data-original_value="' + character.stats[stat] + '" data-type="' + stat.capitalize() + '">';
+            elmStatsInner += '<select>';
+            statsList[stat.toLowerCase()].forEach(function (value) {
+                elmStatsInner += '<option value="' + value  + '"';
+                if (value === character.stats[stat]) {
+                    elmStatsInner += ' selected="true" ';
+                }
+                elmStatsInner += '>' + value + '</option>';
+            });
+            elmStatsInner += '</select></li>';
         });
         elements.stats.innerHTML = elmStatsInner + '</ul>';
     };
+
     // Skilllist needs to be retrieved asynchronously so a seperate function to display those.
     displaySkills = function () {
         var stats;
@@ -509,8 +546,37 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
     });
 
     // Editable stats
-    elements.stats.addEventListener('dblclick', function (event) {
-        console.log('stats dblclick, event', event);
+    elements.stats.addEventListener('click', function (event) {
+//        var selector = '',
+//            element = event.target,
+//            statValue = parseInt(element.innerHTML, 10);
+//        if (element !== selectedElement && element.parentElement !== selectedElement) {
+//            if (selectedElement) {
+//                restoreElement(selectedElement);
+//            }
+//            selectedElement = element;
+//            selector += '<select>';
+//            statsList[element.dataset.type.toLowerCase()].forEach(function (value) {
+//                selector += '<option value="' + value  + '"';
+//                if (value === statValue) {
+//                    selector += ' selected="true" ';
+//                }
+//                selector += '>' + value + '</option>';
+//            });
+//            element.innerHTML = selector + '</select>';
+//            element.onchange = function (ev) {
+//                restoreElement(element, ev.target.value);
+//                selectedElement = undefined;
+//            };
+//        }
+    });
+
+    elements.menu.addEventListener('click', function (event) {
+        switch (event.target.dataset.menu_item) {
+        case 'edit':
+            console.log('edit');
+            break;
+        }
     });
 
     // **************************************************************************************************

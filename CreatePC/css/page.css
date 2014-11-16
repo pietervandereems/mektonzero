@@ -4,6 +4,27 @@ body {
     color: silver;
 }
 
+#menu {
+    float: right;
+    font-family: 'icomoon';
+    speak: none;
+    font-style: normal;
+    font-weight: normal;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+
+    /* Better Font Rendering =========== */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+#menu li {
+    display: inline;
+    margin-right: 1em;
+    cursor: pointer;
+}
+
 /* lists */
 ul {
     list-style: none;
@@ -55,11 +76,46 @@ tr:last-child > td {
     margin-bottom: 1em;
 }
 
+#stats select {
+    appearance: none;
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    border: 0;
+    margin: inherit;
+    background: inherit;
+    color: inherit;
+    font: inherit;
+}
+
+#stats ul {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    flex-direction: row;
+    align-items: flex-start;
+    align-content: flex-start;
+    width: 100%;
+
+    /* old browser support */
+/*    display                 : -webkit-flex;*/ /* don't know why but for this to work in IOS Safari, this needs to be commented out */
+    -webkit-flex-direction  : row;
+    -webkit-flex-wrap       : wrap;
+    -webkit-justify-content : center-around;
+    -webkit-align-items     : flex-start;
+    -webkit-align-content   : flex-start;
+    display                 : -ms-flexbox;
+    -ms-flex-direction      : row;
+    -ms-flex-wrap           : wrap;
+    -ms-justify-content     : center;
+    -ms-align-items         : flex-start;
+    -ms-align-content       : flex-start;
+}
+
 #stats li {
     display: inline-table;
     padding: 1em;
     border: 1px solid #565656;
-    background: black;
+    background: #161616;
     border-radius: 5px;
     text-align: center;
     min-width: 3em;
@@ -68,7 +124,7 @@ tr:last-child > td {
 
 #stats li[data-type]::before {
     content:  ' ' attr(data-type);
-    display: table-row
+    display: table-row;
     color: silver;
 }
 

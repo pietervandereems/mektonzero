@@ -3,5 +3,5 @@
     "version": "0.0.1",
     "description": "Create PC's for mekton",
     "attachments": ["index.html", "manifest.webapp"],
-    "dir": ["js", "img", "css"]
+    "dir": ["js", "img", "css", "fonts"]
 }
