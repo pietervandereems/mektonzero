@@ -5,13 +5,13 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
     var db = new Pouchdb('mekton'),
         charDb = new Pouchdb('localChars'),
         statsList = {},
+        lifepathList = {},
         replicator,
         initialPhase = true,
         localCharacter = {},
         elements = {},
         elmDefaults = {},
         character = {},
-        selectedElement,
         checkRequest,
         manifestUrl = 'https://zero.mekton.nl/createpc/manifest.webapp',
         updateSelection,
@@ -32,7 +32,6 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
         placeName,
         setMsg,
         compareInt,
-        restoreElement,
         addView,
         addInstallButton,
         startReplicator;
@@ -127,14 +126,6 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
         return (parseInt(a, 10) - parseInt(b, 10));
     };
 
-    restoreElement = function (element, value) {
-        value = parseInt(value, 10) || parseInt(element.dataset.original_value, 10);
-        element.innerHTML = value;
-        character.stats[element.dataset.type.toLowerCase()] = value;
-        element.onblur = undefined;
-        element.onchange = undefined;
-    };
-
     // **************************************************************************************************
     // Generate character stuff
     // **************************************************************************************************
@@ -145,6 +136,7 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
             if (!Array.isArray(doc[from])) {
                 return;
             }
+            lifepathList[from] = doc[from];
             character[type][from] = doc[from][rnd(doc[from].length)];
             if (character[type][from].next) {
                 follow(character[type][from].next);
@@ -153,6 +145,7 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
         if (!type) {
             type = start;
         }
+        lifepathList = {};
         db.query('local/typesWithName', {reduce: false, key: 'lifepath', include_docs: true}, function (err, list) {
             if (err || !Array.isArray(list.rows) || list.rows.length === 0) {
                 return;
@@ -436,7 +429,16 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
         periods = Object.keys(character[type]);
         table += '<caption>' + type.capitalize() + '</caption>';
         periods.forEach(function (period) {
-            table += '<tr><td>' + period + '</td><td>' + placeName(character[type][period].text) + '</td></tr>';
+            var textList = '<select>';
+            lifepathList[period].forEach(function (item) {
+                textList += '<option';
+                if (item.text === character[type][period].text) {
+                    textList += ' selected="true" ';
+                }
+                textList += '>' + placeName(item.text) + '</option>';
+            });
+            textList += '</select>';
+            table += '<tr><td>' + period + '</td><td>' + textList + '</td></tr>';
         });
         if (element.nodeName !== 'TABLE') {
             table = '<table>' + table + '</table>';
@@ -543,32 +545,6 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
             displayLifepath(document.getElementById('traits'), 'Traits');
             displayLifepath(document.getElementById('lifepath'), 'Romantic life');
         });
-    });
-
-    // Editable stats
-    elements.stats.addEventListener('click', function (event) {
-//        var selector = '',
-//            element = event.target,
-//            statValue = parseInt(element.innerHTML, 10);
-//        if (element !== selectedElement && element.parentElement !== selectedElement) {
-//            if (selectedElement) {
-//                restoreElement(selectedElement);
-//            }
-//            selectedElement = element;
-//            selector += '<select>';
-//            statsList[element.dataset.type.toLowerCase()].forEach(function (value) {
-//                selector += '<option value="' + value  + '"';
-//                if (value === statValue) {
-//                    selector += ' selected="true" ';
-//                }
-//                selector += '>' + value + '</option>';
-//            });
-//            element.innerHTML = selector + '</select>';
-//            element.onchange = function (ev) {
-//                restoreElement(element, ev.target.value);
-//                selectedElement = undefined;
-//            };
-//        }
     });
 
     elements.menu.addEventListener('click', function (event) {
