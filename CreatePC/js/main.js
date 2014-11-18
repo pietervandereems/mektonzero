@@ -1,6 +1,6 @@
 /*jslint browser:true, nomen:true*/
 /*global requirejs*/
-requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
+requirejs(['pouchdb-3.1.0.min'], function (Pouchdb) {
     'use strict';
     var db = new Pouchdb('mekton'),
         charDb = new Pouchdb('localChars'),
@@ -25,6 +25,7 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
         displaySkills,
         displayGear,
         displayLifepath,
+        displayAll,
         pickSkillFromCategory,
         addSkillToStat,
         setBatteryManagers,
@@ -33,6 +34,7 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
         setMsg,
         compareInt,
         uniqueLife,
+        editModeIsSet,
         addView,
         addInstallButton,
         startReplicator;
@@ -141,6 +143,10 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
             }
         });
         return u;
+    };
+
+    editModeIsSet = function () {
+        return elements.menu.querySelector('[data-menu_item="edit"]').classList.contains('selected');
     };
 
     // **************************************************************************************************
@@ -409,15 +415,20 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
         elmStatsInner =  elmDefaults.stats + '<ul>';
         stats.forEach(function (stat) {
             elmStatsInner += '<li data-original_value="' + character.stats[stat] + '" data-type="' + stat.capitalize() + '">';
-            elmStatsInner += '<select>';
-            statsList[stat.toLowerCase()].forEach(function (value) {
-                elmStatsInner += '<option value="' + value  + '"';
-                if (value === character.stats[stat]) {
-                    elmStatsInner += ' selected="true" ';
-                }
-                elmStatsInner += '>' + value + '</option>';
-            });
-            elmStatsInner += '</select></li>';
+            if (editModeIsSet()) {
+                elmStatsInner += '<select>';
+                statsList[stat.toLowerCase()].forEach(function (value) {
+                    elmStatsInner += '<option value="' + value  + '"';
+                    if (value === character.stats[stat]) {
+                        elmStatsInner += ' selected="true" ';
+                    }
+                    elmStatsInner += '>' + value + '</option>';
+                });
+                elmStatsInner += '</select>';
+            } else {
+                elmStatsInner += character.stats[stat];
+            }
+            elmStatsInner += '</li>';
         });
         elements.stats.innerHTML = elmStatsInner + '</ul>';
     };
@@ -450,15 +461,20 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
         periods = Object.keys(character[type]);
         table += '<caption>' + type.capitalize() + '</caption>';
         periods.forEach(function (period) {
-            var textList = '<select>';
-            lifepathList[period].forEach(function (item) {
-                textList += '<option';
-                if (item.text === character[type][period].text) {
-                    textList += ' selected="true" ';
-                }
-                textList += '>' + placeName(item.text) + '</option>';
-            });
-            textList += '</select>';
+            var textList;
+            if (editModeIsSet()) {
+                textList = '<select>';
+                lifepathList[period].forEach(function (item) {
+                    textList += '<option';
+                    if (item.text === character[type][period].text) {
+                        textList += ' selected="true" ';
+                    }
+                    textList += '>' + placeName(item.text) + '</option>';
+                });
+                textList += '</select>';
+            } else {
+                textList = character[type][period].text;
+            }
             table += '<tr><td>' + period + '</td><td>' + textList + '</td></tr>';
         });
         if (element.nodeName !== 'TABLE') {
@@ -483,8 +499,16 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
             });
             row.innerHTML = rowInner + '</ul></td>';
         });
-
     };
+    // Meta function to call all display functions
+    displayAll = function () {
+        display();
+        displaySkills();
+        displayGear();
+        displayLifepath(document.getElementById('traits'), 'Traits');
+        displayLifepath(document.getElementById('lifepath'), 'Romantic life');
+    };
+
     // **************************************************************************************************
     // Event Listeners, for user interaction
     // **************************************************************************************************
@@ -560,19 +584,19 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
             elements.name.value = doc.name;
             character = doc;
             // display character
-            display();
-            displaySkills();
-            displayGear();
-            displayLifepath(document.getElementById('traits'), 'Traits');
-            displayLifepath(document.getElementById('lifepath'), 'Romantic life');
+            displayAll();
         });
     });
 
     elements.menu.addEventListener('click', function (event) {
-        switch (event.target.dataset.menu_item) {
-        case 'edit':
-            console.log('edit');
-            break;
+        if (event.target.dataset.menu_item) {
+            event.target.classList.toggle('selected');
+            displayAll();
+            switch (event.target.dataset.menu_item) {
+            case 'edit':
+                console.log('edit');
+                break;
+            }
         }
     });
 
