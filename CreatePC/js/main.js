@@ -32,6 +32,7 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
         placeName,
         setMsg,
         compareInt,
+        uniqueLife,
         addView,
         addInstallButton,
         startReplicator;
@@ -126,6 +127,22 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
         return (parseInt(a, 10) - parseInt(b, 10));
     };
 
+    uniqueLife = function (arr) {
+        var u = [],
+            arrItems = [];
+        if (!Array.isArray(arr)) {
+            return arr;
+        }
+
+        arr.forEach(function (item) {
+            if (arrItems.indexOf(item.text) === -1) {
+                u.push(item);
+                arrItems.push(item.text);
+            }
+        });
+        return u;
+    };
+
     // **************************************************************************************************
     // Generate character stuff
     // **************************************************************************************************
@@ -136,7 +153,7 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
             if (!Array.isArray(doc[from])) {
                 return;
             }
-            lifepathList[from] = doc[from];
+            lifepathList[from] = uniqueLife(doc[from]);
             character[type][from] = doc[from][rnd(doc[from].length)];
             if (character[type][from].next) {
                 follow(character[type][from].next);
@@ -159,6 +176,7 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
             displayLifepath(elmTable, type);
         });
     };
+
     generateSkills = function (doc) {
         var addToSkillList,
             findStatOfSkill;
@@ -225,6 +243,7 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
             displaySkills();
         });
     };
+
     // Get the archetype edge
     generateEdge = function (doc) {
         var edges;
@@ -234,6 +253,7 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
             character.edge[edge] = doc.edge[edge];
         });
     };
+
     // Randomly determine character stats based on archetype.
     generateStats = function (doc) {
         var stats;
@@ -262,6 +282,7 @@ requirejs(['pouchdb-3.0.6.min'], function (Pouchdb) {
             });
         }
     };
+
     // Get the gear
     generateGear = function (doc) {
         var pickStuff;
