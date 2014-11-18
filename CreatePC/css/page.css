@@ -25,6 +25,12 @@ body {
     cursor: pointer;
 }
 
+.selected {
+    color: yellow;
+    text-shadow: 0px 0px 7px yellow;
+    font-weight: bold;
+}
+
 /* lists */
 ul {
     list-style: none;
