@@ -452,7 +452,7 @@ requirejs(['pouchdb-3.1.0.min'], function (Pouchdb) {
                 });
                 textList += '</select>';
             } else {
-                textList = character[type][period].text;
+                textList = placeName(character[type][period].text);
             }
             table += '<tr><td>' + period + '</td><td>' + textList + '</td></tr>';
         });
@@ -784,3 +784,16 @@ requirejs(['pouchdb-3.1.0.min'], function (Pouchdb) {
             });
     }
 });
+
+//Copyright 2014 Pieter van der Eems
+//This file is part of CreatePC
+//CreatePC is free software: you can redistribute it and/or modify
+//it under the terms of the Affero GNU General Public License as published by
+//the Free Software Foundation, either version 3 of the License, or
+//(at your option) any later version.
+//CreatePC is distributed in the hope that it will be useful,
+//but WITHOUT ANY WARRANTY; without even the implied warranty of
+//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+//Affero GNU General Public License for more details.
+//You should have received a copy of the Affero GNU General Public License
+//along with CreatePC. If not, see <http://www.gnu.org/licenses/>.
