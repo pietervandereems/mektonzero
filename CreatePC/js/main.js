@@ -53,6 +53,7 @@ requirejs(['pouchdb-3.1.0.min'], function (Pouchdb) {
     elements.install = document.getElementById('install');
     elements.consol = document.getElementById('consol');
     elements.menu = document.getElementById('menu');
+    elements.traits = document.querySelector('[data-type="Traits"]');
     elmDefaults.stats = '<p>Stats</p>';
     elmDefaults.skills = '<caption>Skills</caption>';
     elmDefaults.gear = '<caption>Gear</caption>';
@@ -459,7 +460,6 @@ requirejs(['pouchdb-3.1.0.min'], function (Pouchdb) {
             return;
         }
         periods = Object.keys(character[type]);
-        table += '<caption>' + type.capitalize() + '</caption>';
         periods.forEach(function (period) {
             var textList;
             if (editModeIsSet()) {
@@ -478,7 +478,7 @@ requirejs(['pouchdb-3.1.0.min'], function (Pouchdb) {
             table += '<tr><td>' + period + '</td><td>' + textList + '</td></tr>';
         });
         if (element.nodeName !== 'TABLE') {
-            table = '<table>' + table + '</table>';
+            table = '<table data-type="' + type  + '">' + table + '</table>';
         }
         element.innerHTML = table;
     };
@@ -502,10 +502,12 @@ requirejs(['pouchdb-3.1.0.min'], function (Pouchdb) {
     };
     // Meta function to call all display functions
     displayAll = function () {
+console.log('displayAll, character', character);
         display();
         displaySkills();
         displayGear();
-        displayLifepath(document.getElementById('traits'), 'Traits');
+console.log('elements.traits', elements.traits);
+        displayLifepath(elements.traits, 'Traits');
         displayLifepath(document.getElementById('lifepath'), 'Romantic life');
     };
 
@@ -522,7 +524,7 @@ requirejs(['pouchdb-3.1.0.min'], function (Pouchdb) {
             generateEdge(doc);
             generateStats(doc);
             generateSkills(doc);
-            generateLifepath('Hair Color', document.getElementById('traits'), 'Traits');
+            generateLifepath('Hair Color', elements.traits, 'Traits');
             generateLifepath('Romantic life', document.getElementById('lifepath'));
             generateGear(doc);
             display();

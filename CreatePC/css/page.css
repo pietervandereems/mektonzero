@@ -55,6 +55,13 @@ caption {
     color: #E37700;
 }
 
+table[data-type]::before {
+    display: table-caption;
+    content: attr(data-type);
+    color: #E37700;
+    text-align: center;
+}
+
 td, th {
     background-color: #161616;
     border-radius: 5px;
