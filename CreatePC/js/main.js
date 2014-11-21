@@ -54,6 +54,7 @@ requirejs(['pouchdb-3.1.0.min'], function (Pouchdb) {
     elements.consol = document.getElementById('consol');
     elements.menu = document.getElementById('menu');
     elements.traits = document.querySelector('[data-type="Traits"]');
+    elements.result = document.getElementById('result');
     elmDefaults.stats = '<p>Stats</p>';
     elmDefaults.skills = '<caption>Skills</caption>';
     elmDefaults.gear = '<caption>Gear</caption>';
@@ -502,11 +503,9 @@ requirejs(['pouchdb-3.1.0.min'], function (Pouchdb) {
     };
     // Meta function to call all display functions
     displayAll = function () {
-console.log('displayAll, character', character);
         display();
         displaySkills();
         displayGear();
-console.log('elements.traits', elements.traits);
         displayLifepath(elements.traits, 'Traits');
         displayLifepath(document.getElementById('lifepath'), 'Romantic life');
     };
@@ -589,17 +588,25 @@ console.log('elements.traits', elements.traits);
             displayAll();
         });
     });
-
+    // A menu button has been clicked
     elements.menu.addEventListener('click', function (event) {
         if (event.target.dataset.menu_item) {
             event.target.classList.toggle('selected');
             displayAll();
             switch (event.target.dataset.menu_item) {
             case 'edit':
-                console.log('edit');
                 break;
             }
         }
+    });
+
+    // A change has been made in the results
+    elements.result.addEventListener('change', function (event) {
+        var tableType,
+            thisType;
+        thisType = event.target.parentElement.previousElementSibling.innerHTML;
+        tableType = event.target.parentElement.parentElement.parentElement.parentElement.dataset.type;
+        character[tableType][thisType].text = event.target.value;
     });
 
     // **************************************************************************************************
