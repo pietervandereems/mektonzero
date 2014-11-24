@@ -1,11 +1,28 @@
+* + * {
+    margin-left: 5px;
+}
+
 body {
     background-image: url("/img/bg20.gif");
     background-color: black;
     color: silver;
 }
 
+input {
+    border-style: dotted;
+    border-left-style: solid;
+    border-right-style: solid;
+    border-width: 2px;
+    font-size: initial;
+    background-color: transparent;
+    color: silver;
+}
+
 #menu {
     float: right;
+}
+
+#menu ul {
     font-family: 'icomoon';
     speak: none;
     font-style: normal;
@@ -24,6 +41,10 @@ body {
     display: inline;
     margin-right: 1em;
     cursor: pointer;
+}
+
+#username {
+    display: none;
 }
 
 .selected {
@@ -136,6 +157,7 @@ tr:last-child > td {
     text-align: center;
     min-width: 3em;
     color: orange;
+    margin-left: 1px;
 }
 
 #stats li[data-type]::before {

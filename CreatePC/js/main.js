@@ -55,6 +55,7 @@ requirejs(['pouchdb-3.1.0.min'], function (Pouchdb) {
     elements.menu = document.getElementById('menu');
     elements.traits = document.querySelector('[data-type="Traits"]');
     elements.result = document.getElementById('result');
+    elements.username = document.getElementById('username');
     elmDefaults.stats = '<p>Stats</p>';
     elmDefaults.skills = '<caption>Skills</caption>';
     elmDefaults.gear = '<caption>Gear</caption>';
@@ -592,9 +593,16 @@ requirejs(['pouchdb-3.1.0.min'], function (Pouchdb) {
     elements.menu.addEventListener('click', function (event) {
         if (event.target.dataset.menu_item) {
             event.target.classList.toggle('selected');
-            displayAll();
             switch (event.target.dataset.menu_item) {
             case 'edit':
+                displayAll();
+                break;
+            case 'user':
+                if (event.target.classList.contains('selected')) {
+                    elements.username.style.display = 'block';
+                } else {
+                    elements.username.style.display = 'none';
+                }
                 break;
             }
         }
