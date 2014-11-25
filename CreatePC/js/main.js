@@ -6,12 +6,13 @@ requirejs(['pouchdb-3.1.0.min'], function (Pouchdb) {
         charDb = new Pouchdb('localChars'),
         statsList = {},
         lifepathList = {},
-        replicator,
+        replicator, // archetype replicator
+        charRepl,   // character replicator
         initialPhase = true,
-        localCharacter = {},
+        localCharacter = {},  // Generated character
         elements = {},
         elmDefaults = {},
-        character = {},
+        character = {}, // selecter character, maybe merge with localCharacter variable.
         checkRequest,
         manifestUrl = 'https://zero.mekton.nl/createpc/manifest.webapp',
         updateSelection,
@@ -35,9 +36,11 @@ requirejs(['pouchdb-3.1.0.min'], function (Pouchdb) {
         compareInt,
         uniqueLife,
         editModeIsSet,
+        replicateModeIsSet,
         addView,
         addInstallButton,
-        startReplicator;
+        startReplicator,
+        startCharReplicator;
 
     // **************************************************************************************************
     // Shortcuts to interface elements
@@ -150,6 +153,10 @@ requirejs(['pouchdb-3.1.0.min'], function (Pouchdb) {
 
     editModeIsSet = function () {
         return elements.menu.querySelector('[data-menu_item="edit"]').classList.contains('selected');
+    };
+
+    replicateModeIsSet = function () {
+        return elements.menu.querySelector('[data-menu_item="user"]').classList.contains('selected');
     };
 
     // **************************************************************************************************
@@ -605,6 +612,7 @@ requirejs(['pouchdb-3.1.0.min'], function (Pouchdb) {
                 displayAll();
                 break;
             case 'user':
+                startCharReplicator();
                 break;
             }
         }
@@ -747,7 +755,7 @@ requirejs(['pouchdb-3.1.0.min'], function (Pouchdb) {
                 updateSavedChar();
             });
     });
-    // Update local mekton database, and listen to replicate events
+    // Update local mekton database, and listen to it's replicate events
     startReplicator = function () {
         replicator = Pouchdb.replicate('https://zero.mekton.nl/db/mekton', 'mekton', {live: true, filter: 'mekton/typedDocs'})
             .on('uptodate', function () {
@@ -763,12 +771,27 @@ requirejs(['pouchdb-3.1.0.min'], function (Pouchdb) {
                 updateSelection();
             });
     };
-
+    // Start LocalCharacter replicator to server if possible (username needs to be set) and listen to it's replicator events.
+    startCharReplicator = function () {
+        if (elements.username.value && replicateModeIsSet()) {
+            charRepl = Pouchdb.replicate('localChars', 'https://zero.mekton.nl/db/mekton_' + elements.username.value, {skipSetup:true, create_target: false, live: true})
+                .on('uptodate', function () {
+                    console.log('user characters up to date');
+                })
+                .on('error', function (err) {
+                    console.log('Error user character sync', err);
+                })
+                .on('complete', function () {
+                    console.log('user character sync complete');
+                });
+        }
+    };
     // **************************************************************************************************
     // Main
     // **************************************************************************************************
     // Start replication
     startReplicator();
+    startCharReplicator();
     // Clear fields
     elements.name.value = '';
 
@@ -783,17 +806,23 @@ requirejs(['pouchdb-3.1.0.min'], function (Pouchdb) {
 
         fullMode = function () {
             battery.addEventListener('levelchange', levelListener);
+            setMsg('We have power again, starting replications');
             if (!replicator || replicator.cancelled) {
                 startReplicator();
-                setMsg('We have power again, starting replication archetypes');
+            }
+            if (!charRepl || charRepl.cancelled) {
+                startCharReplicator();
             }
         };
         lowMode = function () {
             if (!replicator.cancelled) {
                 replicator.cancel();
             }
+            if (!charRepl.cancelled) {
+                charRepl.cancel();
+            }
             battery.removeEventListener('levelchange', levelListener);
-            setMsg('Low battery, halting replication archetypes');
+            setMsg('Low battery, halting replications');
         };
         levelListener = function () {
             if (!battery.charging && battery.level < 0.18) { // battery at 17% or less
