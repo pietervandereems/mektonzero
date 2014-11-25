@@ -548,9 +548,16 @@ requirejs(['pouchdb-3.1.0.min'], function (Pouchdb) {
         } else {
             character.name = elements.name.value;
             character.archetype = elements.charType.value;
-            charDb.post(character, function (err) {
+            delete character._id;
+            delete character._rev;
+            charDb.post(character, function (err, result) {
                 if (err) {
                     console.error('Error saving new character', err);
+                }
+                if (result.ok) {
+                    localCharacter.id = result.id;
+                    character._id = result.id;
+                    character._rev = result.rev;
                 }
             });
         }
@@ -598,11 +605,6 @@ requirejs(['pouchdb-3.1.0.min'], function (Pouchdb) {
                 displayAll();
                 break;
             case 'user':
-                if (event.target.classList.contains('selected')) {
-                    elements.username.style.display = 'block';
-                } else {
-                    elements.username.style.display = 'none';
-                }
                 break;
             }
         }

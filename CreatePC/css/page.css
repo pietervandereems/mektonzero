@@ -43,10 +43,6 @@ input {
     cursor: pointer;
 }
 
-#username {
-    display: none;
-}
-
 .selected {
     color: yellow;
     text-shadow: 0px 0px 7px yellow;
@@ -69,6 +65,10 @@ ul {
 td li[data-value]::after {
     content: " (" attr(data-value) ")";
     font-size: smaller;
+}
+
+td li {
+    margin-left: 0px;
 }
 
 /* Tables */
