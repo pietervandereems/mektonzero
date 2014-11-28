@@ -114,6 +114,7 @@ tr:last-child > td {
     border: 0;
     margin: inherit;
     background: inherit;
+    background-color: #161616;
     color: inherit;
     font: inherit;
 }
