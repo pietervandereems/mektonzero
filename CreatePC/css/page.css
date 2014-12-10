@@ -18,28 +18,7 @@ input {
     color: silver;
 }
 
-#menu {
-    float: right;
-}
-
-#menu ul {
-    font-family: 'icomoon';
-    speak: none;
-    font-style: normal;
-    font-weight: normal;
-    font-variant: normal;
-    text-transform: none;
-    line-height: 1;
-    font-size: 25px;
-
-    /* Better Font Rendering =========== */
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-}
-
-#menu li {
-    display: inline;
-    margin-right: 1em;
+li[data-menu_item] {
     cursor: pointer;
 }
 
@@ -204,6 +183,51 @@ div {
     /* old browser support */
     -webkit-justify-content : center;
     -ms-justify-content     : center;
+}
+
+/* Toolbar */
+
+toolbar {
+    display         : flex;
+    flex-direction  : row;
+    flex-wrap       : nowrap;
+    justify-content : space-between;
+    align-items     : stretch;
+    align-content   : flex-start;
+
+    /* old browser support */
+    display                 : -webkit-flex;
+    -webkit-flex-direction  : row;
+    -webkit-flex-wrap       : nowrap;
+    -webkit-justify-content : space-between;
+    -webkit-align-items     : stretch;
+    -webkit-align-content   : flex-start;
+    display                 : -ms-flexbox;
+    -ms-flex-direction      : row;
+    -ms-flex-wrap           : nowrap;
+    -ms-justify-content     : space-between;
+    -ms-align-items         : stretch;
+    -ms-align-content       : flex-start;
+}
+
+toolbar ul {
+    font-family: 'icomoon';
+    speak: none;
+    font-style: normal;
+    font-weight: normal;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+    font-size: 25px;
+
+    /* Better Font Rendering =========== */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+toolbar li {
+    display: inline;
+    cursor: default;
 }
 
 /*

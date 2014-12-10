@@ -1,6 +1,6 @@
 /*jslint browser:true, nomen:true*/
 /*global requirejs*/
-requirejs(['pouchdb-3.1.0.min'], function (Pouchdb) {
+requirejs(['pouchdb-3.2.0.min'], function (Pouchdb) {
     'use strict';
     var db = new Pouchdb('mekton'),
         charDb = new Pouchdb('localChars'),
@@ -38,6 +38,7 @@ requirejs(['pouchdb-3.1.0.min'], function (Pouchdb) {
         uniqueLife,
         editModeIsSet,
         replicateModeIsSet,
+        indicateConnection,
         addView,
         addInstallButton,
         startReplicator,
@@ -56,7 +57,10 @@ requirejs(['pouchdb-3.1.0.min'], function (Pouchdb) {
     elements.gear = document.getElementById('gear');
     elements.install = document.getElementById('install');
     elements.consol = document.getElementById('consol');
-    elements.menu = document.getElementById('menu');
+    elements.toolbar = document.querySelector('toolbar');
+    elements.indicator = {
+        connection: elements.toolbar.querySelector('[data-indicator_item="connection"]')
+    };
     elements.traits = document.querySelector('[data-type="Traits"]');
     elements.result = document.getElementById('result');
     elements.username = document.getElementById('username');
@@ -153,11 +157,21 @@ requirejs(['pouchdb-3.1.0.min'], function (Pouchdb) {
     };
 
     editModeIsSet = function () {
-        return elements.menu.querySelector('[data-menu_item="edit"]').classList.contains('selected');
+        return document.querySelector('[data-menu_item="edit"]').classList.contains('selected');
     };
 
     replicateModeIsSet = function () {
-        return elements.menu.querySelector('[data-menu_item="user"]').classList.contains('selected');
+        return document.querySelector('[data-menu_item="user"]').classList.contains('selected');
+    };
+
+    indicateConnection = function (connected) {
+        if (connected) {
+            elements.indicator.connection.classList.add('selected');
+            elements.indicator.connection.setAttribute('title', "Connection");
+        } else {
+            elements.indicator.connection.classList.remove('selected');
+            elements.indicator.connection.setAttribute('title', "No connection");
+        }
     };
 
     // **************************************************************************************************
@@ -512,11 +526,13 @@ requirejs(['pouchdb-3.1.0.min'], function (Pouchdb) {
     };
     // Meta function to call all display functions
     displayAll = function () {
-        display();
-        displaySkills();
-        displayGear();
-        displayLifepath(elements.traits, 'Traits');
-        displayLifepath(document.getElementById('lifepath'), 'Romantic life');
+        if (Object.keys(character).length > 0) { // no need to display when nothing is available to display
+            display();
+            displaySkills();
+            displayGear();
+            displayLifepath(elements.traits, 'Traits');
+            displayLifepath(document.getElementById('lifepath'), 'Romantic life');
+        }
     };
 
     // **************************************************************************************************
@@ -604,8 +620,8 @@ requirejs(['pouchdb-3.1.0.min'], function (Pouchdb) {
             displayAll();
         });
     });
-    // A menu button has been clicked
-    elements.menu.addEventListener('click', function (event) {
+    // A toolbar button has been clicked
+    elements.toolbar.addEventListener('click', function (event) {
         if (event.target.dataset.menu_item) {
             event.target.classList.toggle('selected');
             switch (event.target.dataset.menu_item) {
@@ -774,7 +790,8 @@ requirejs(['pouchdb-3.1.0.min'], function (Pouchdb) {
     };
     // Start LocalCharacter replicator to server if possible (username needs to be set) and listen to it's replicator events.
     startCharReplicator = function () {
-        if (elements.username.value && replicateModeIsSet()) {
+        indicateConnection(true);
+        if (elements.username && elements.username.value && replicateModeIsSet()) {
             remoteCharDb = new Pouchdb('https://zero.mekton.nl/db/mekton_' + elements.username.value, {skipSetup: true}, function (err) {
                 if (err) {
                     console.log('remoteCharDb err', err);
@@ -828,6 +845,7 @@ requirejs(['pouchdb-3.1.0.min'], function (Pouchdb) {
             }
         };
         lowMode = function () {
+            indicateConnection(false);
             if (!replicator.cancelled) {
                 replicator.cancel();
             }

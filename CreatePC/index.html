@@ -9,15 +9,17 @@
     <title>Create PC - Mekton Zero -</title>
 </head>
 <body>
-    <h1>Create PC</h1>
-    <div id="menu">
+    <toolbar>
         <ul>
-            <li data-menu_item="edit"></li>
-            <li data-menu_item="share"></li>
-            <li data-menu_item="user"></li>
+            <li data-menu_item="edit" title="Edit">&#xe600;</li>
+            <li data-menu_item="share" title="Share">&#xe602;</li>
+            <li data-menu_item="remote" title="Remote">&#xe601;</li>
         </ul>
-        <input type="text" id="username">
-    </div>
+        <ul>
+            <li data-indicator_item="connection" title="No Connection">&#xe603;</li>
+        </ul>
+    </toolbar>
+    <h1>Create PC</h1>
     <button id="install">Install</button>
     <div id="consol"></div>
     <section id="selection">
