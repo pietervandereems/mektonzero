@@ -18,28 +18,7 @@ input {
     color: silver;
 }
 
-#menu {
-    float: right;
-}
-
-#menu ul {
-    font-family: 'icomoon';
-    speak: none;
-    font-style: normal;
-    font-weight: normal;
-    font-variant: normal;
-    text-transform: none;
-    line-height: 1;
-    font-size: 25px;
-
-    /* Better Font Rendering =========== */
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-}
-
-#menu li {
-    display: inline;
-    margin-right: 1em;
+li[data-menu_item] {
     cursor: pointer;
 }
 
@@ -114,6 +93,7 @@ tr:last-child > td {
     border: 0;
     margin: inherit;
     background: inherit;
+    background-color: #161616;
     color: inherit;
     font: inherit;
 }
@@ -205,6 +185,8 @@ div {
     -ms-justify-content     : center;
 }
 
+/* Toolbar */
+
 toolbar {
     display         : flex;
     flex-direction  : row;
@@ -241,6 +223,11 @@ toolbar ul {
     /* Better Font Rendering =========== */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+}
+
+toolbar li {
+    display: inline;
+    cursor: default;
 }
 
 /*
