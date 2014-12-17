@@ -774,7 +774,7 @@ requirejs(['pouchdb-3.1.0.min'], function (Pouchdb) {
     // Start LocalCharacter replicator to server if possible (username needs to be set) and listen to it's replicator events.
     startCharReplicator = function () {
         if (elements.username.value && replicateModeIsSet()) {
-            charRepl = Pouchdb.replicate('localChars', 'https://zero.mekton.nl/db/mekton_' + elements.username.value, {skipSetup:true, create_target: false, live: true})
+            charRepl = Pouchdb.replicate('localChars', 'https://zero.mekton.nl/db/mekton_' + elements.username.value, {skipSetup: true, create_target: false, live: true})
                 .on('uptodate', function () {
                     console.log('user characters up to date');
                 })

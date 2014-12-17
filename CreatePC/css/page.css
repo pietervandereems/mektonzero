@@ -205,6 +205,44 @@ div {
     -ms-justify-content     : center;
 }
 
+toolbar {
+    display         : flex;
+    flex-direction  : row;
+    flex-wrap       : nowrap;
+    justify-content : space-between;
+    align-items     : stretch;
+    align-content   : flex-start;
+
+    /* old browser support */
+    display                 : -webkit-flex;
+    -webkit-flex-direction  : row;
+    -webkit-flex-wrap       : nowrap;
+    -webkit-justify-content : space-between;
+    -webkit-align-items     : stretch;
+    -webkit-align-content   : flex-start;
+    display                 : -ms-flexbox;
+    -ms-flex-direction      : row;
+    -ms-flex-wrap           : nowrap;
+    -ms-justify-content     : space-between;
+    -ms-align-items         : stretch;
+    -ms-align-content       : flex-start;
+}
+
+toolbar ul {
+    font-family: 'icomoon';
+    speak: none;
+    font-style: normal;
+    font-weight: normal;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+    font-size: 25px;
+
+    /* Better Font Rendering =========== */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
 /*
 Copyright 2014 Pieter van der Eems
 This file is part of CreatePC
