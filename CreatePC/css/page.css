@@ -6,6 +6,7 @@ body {
     background-image: url("/img/bg20.gif");
     background-color: black;
     color: silver;
+    margin: 0;
 }
 
 input {
@@ -208,6 +209,11 @@ toolbar {
     -ms-justify-content     : space-between;
     -ms-align-items         : stretch;
     -ms-align-content       : flex-start;
+}
+
+toolbar {
+    background: #161616;
+    padding: 0.5em;
 }
 
 toolbar ul {
