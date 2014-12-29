@@ -4,6 +4,10 @@ requirejs(['pouchdb-3.2.0.min'], function (Pouchdb) {
     'use strict';
     var db = new Pouchdb('mekton'),
         charDb = new Pouchdb('localChars'),
+        settings = {
+            db: new Pouchdb('settings'),
+            doc: {}
+        },
         remoteCharDb, // Initialized later, since we don't know the remote database yet.
         statsList = {},
         lifepathList = {},
@@ -13,7 +17,7 @@ requirejs(['pouchdb-3.2.0.min'], function (Pouchdb) {
         localCharacter = {},  // Generated character
         elements = {},
         elmDefaults = {},
-        character = {}, // selecter character, maybe merge with localCharacter variable.
+        character = {}, // selected character.
         checkRequest,
         manifestUrl = 'https://zero.mekton.nl/createpc/manifest.webapp',
         updateSelection,
@@ -816,6 +820,34 @@ requirejs(['pouchdb-3.2.0.min'], function (Pouchdb) {
             });
         }
     };
+
+    // Read the local settings database
+    settings.db.get('settings', function (err, doc) {
+        if (err) {
+            if (err.status === 404 && err.message === "missing") {
+                settings.doc = {
+                    _id: 'settings',
+                    username: ''
+                };
+                settings.db.put(settings.doc, function (err, result) {
+                    if (err) {
+                        console.error('Error saving newly created settings doc', err);
+                        return;
+                    }
+                    console.log('result savind local settings doc', result);
+                    settings.doc._rev = result.rev;
+                });
+            } else {
+                console.error('Error reading local settings doc', err);
+            }
+            return;
+        }
+        settings.doc = doc;
+        console.log('Settings doc', settings.doc);
+        if (settings.username) {
+            elements.username.value = settings.username;
+        }
+    });
     // **************************************************************************************************
     // Main
     // **************************************************************************************************
